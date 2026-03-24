@@ -21,30 +21,34 @@ import AdminSettingsPage from './pages/admin/SettingsPage';
 import AdminAnalyticsPage from './pages/admin/AnalyticsPage';
 import AdminReportsPage from './pages/admin/ReportsPage';
 import AdminAdsPage from './pages/admin/AdsPage';
-import { Box, Stack } from '@mantine/core';
-import ThemeSwitcher from './config/ThemeSwitcher';
+import { LanguageSwitcher } from './components/common/LanguageSwitcher';
+import { ThemeToggle } from './components/common/ThemeToggle';
+import { Box } from '@mantine/core';
 
 export default function App() {
   return (
     <>
-      <div
-        style={{
-          position: "fixed",
-          bottom: 16,
-          left: 16,
-          zIndex: 9999,
-          transform: "scale(0.75)",
-          transformOrigin: "bottom left",
-        }}
-      >
-        <ThemeSwitcher />
-      </div>
-      <Routes>
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/fleet" element={<FleetPage />} />
-          <Route path="/fleet/:id" element={<VehicleDetailPage />} />
-        </Route>
+    
+ <div
+  style={{
+    position: "fixed",
+    bottom: 16,
+    left: 16,
+    zIndex: 9999,
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+  }}
+>
+  <LanguageSwitcher />
+  <ThemeToggle />
+</div>
+    <Routes>
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/fleet" element={<FleetPage />} />
+        <Route path="/fleet/:id" element={<VehicleDetailPage />} />
+      </Route>
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -71,8 +75,8 @@ export default function App() {
           </Route>
         </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
     </>
   );
 }
