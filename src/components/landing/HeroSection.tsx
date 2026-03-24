@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   ThemeIcon,
   Paper,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck } from '@tabler/icons-react';
@@ -43,6 +44,8 @@ function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
 
   const locations = [
@@ -62,9 +65,10 @@ export function HeroSection() {
         minHeight: '85vh',
         display: 'flex',
         alignItems: 'center',
+        background: isDark ? undefined : '#f8f9fa',
       }}
     >
-      {/* Background image */}
+      {/* Background image — subtler in light mode */}
       <Box
         style={{
           position: 'absolute',
@@ -72,7 +76,7 @@ export function HeroSection() {
           backgroundImage: 'url(https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1920&auto=format)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: 0.12,
+          opacity: isDark ? 0.12 : 0.06,
         }}
       />
 
@@ -81,16 +85,22 @@ export function HeroSection() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(135deg, rgba(10,17,28,0.97) 0%, rgba(21,32,48,0.88) 50%, rgba(10,17,28,0.97) 100%)',
+          background: isDark
+            ? 'linear-gradient(135deg, rgba(10,17,28,0.97) 0%, rgba(21,32,48,0.88) 50%, rgba(10,17,28,0.97) 100%)'
+            : 'linear-gradient(135deg, rgba(248,249,250,0.97) 0%, rgba(255,255,255,0.88) 50%, rgba(248,249,250,0.97) 100%)',
           pointerEvents: 'none',
         }}
         className="animate-gradient-shift"
       />
 
-      {/* Floating orbs */}
-      <div className="hero-orb hero-orb-1" />
-      <div className="hero-orb hero-orb-2" />
-      <div className="hero-orb hero-orb-3" />
+      {/* Floating orbs — hidden in light mode */}
+      {isDark && (
+        <>
+          <div className="hero-orb hero-orb-1" />
+          <div className="hero-orb hero-orb-2" />
+          <div className="hero-orb hero-orb-3" />
+        </>
+      )}
 
       <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
         <Stack align="center" gap="xl" className="animate-slide-up">
@@ -103,7 +113,11 @@ export function HeroSection() {
           <Title
             ta="center"
             fw={900}
-            style={{ fontSize: 'clamp(2rem, 6vw, 4.2rem)', lineHeight: 1.08 }}
+            style={{
+              fontSize: 'clamp(2rem, 6vw, 4.2rem)',
+              lineHeight: 1.08,
+              color: isDark ? undefined : '#1a1b1e',
+            }}
           >
             <Text
               component="span"
@@ -116,23 +130,27 @@ export function HeroSection() {
 
           <Text
             ta="center"
-            c="dimmed"
             size="lg"
             maw={550}
+            c={isDark ? 'dimmed' : undefined}
+            style={!isDark ? { color: '#868e96' } : undefined}
           >
             {t('featured.subtitle')}
           </Text>
 
-          {/* Search Card with animated gradient border */}
+          {/* Search Card */}
           <Box
-            className="glass-card animated-gradient-border animate-scale-in"
+            className={`animate-scale-in ${isDark ? 'glass-card animated-gradient-border' : ''}`}
             p={{ base: 'lg', sm: 'xl' }}
             w="100%"
             maw={720}
             style={{
               borderRadius: 'var(--mantine-radius-xl)',
-              boxShadow: '0 30px 80px rgba(0,0,0,0.35)',
-              border: 'none',
+              boxShadow: isDark
+                ? '0 30px 80px rgba(0,0,0,0.35)'
+                : '0 8px 40px rgba(0,0,0,0.10)',
+              border: isDark ? 'none' : '1px solid #e9ecef',
+              background: isDark ? undefined : '#ffffff',
             }}
           >
             <Stack gap="lg">
@@ -180,16 +198,31 @@ export function HeroSection() {
             ].map((stat, i) => (
               <Paper
                 key={stat.label}
-                className="glass-card gradient-border-card animate-stagger-up"
+                className={`animate-stagger-up ${isDark ? 'glass-card gradient-border-card' : ''}`}
                 p="lg"
                 radius="lg"
                 ta="center"
-                style={{ '--stagger-delay': `${0.6 + i * 0.12}s` } as React.CSSProperties}
+                style={{
+                  '--stagger-delay': `${0.6 + i * 0.12}s`,
+                  background: isDark ? undefined : '#ffffff',
+                  border: isDark ? undefined : '1px solid #e9ecef',
+                  boxShadow: isDark ? undefined : '0 2px 12px rgba(0,0,0,0.06)',
+                } as React.CSSProperties}
               >
                 <Text style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }} fw={900} c={stat.color}>
                   <CountUp target={stat.target} suffix={stat.suffix} />
                 </Text>
-                <Text size="xs" c="dimmed" mt={2} tt="uppercase" fw={600} style={{ letterSpacing: '0.05em' }}>
+                <Text
+                  size="xs"
+                  mt={2}
+                  tt="uppercase"
+                  fw={600}
+                  style={{
+                    letterSpacing: '0.05em',
+                    color: isDark ? undefined : '#868e96',
+                  }}
+                  c={isDark ? 'dimmed' : undefined}
+                >
                   {stat.label}
                 </Text>
               </Paper>
@@ -197,7 +230,7 @@ export function HeroSection() {
           </SimpleGrid>
 
           {/* Trust badges */}
-          <Group gap={{ base: 'sm', sm: 'md' }} mt="md" justify="center" wrap="wrap">
+          <Group mt="md" justify="center" wrap="wrap">
             {[
               { label: t('hero.trust.bestPrice'), icon: IconShieldCheck, color: 'green' as const },
               { label: t('hero.trust.support'), icon: IconHeadset, color: 'blue' as const },

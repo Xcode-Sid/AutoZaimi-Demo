@@ -12,6 +12,7 @@ import {
   ThemeIcon,
   Group,
   Box,
+  useMantineColorScheme,
 } from '@mantine/core';
 import {
   IconMapPin,
@@ -32,6 +33,9 @@ const contactInfo = [
 
 export function ContactSection() {
   const { t } = useTranslation();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -59,23 +63,43 @@ export function ContactSection() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,191,165,0.03) 50%, transparent 100%)',
+          background: isDark
+            ? 'linear-gradient(180deg, transparent 0%, rgba(0,191,165,0.03) 50%, transparent 100%)'
+            : '#ffffff',
           pointerEvents: 'none',
         }}
       />
       <Container size="lg" style={{ position: 'relative' }}>
         <Stack align="center" gap="xs" mb={50} className="animate-slide-up">
-          <Title order={2} ta="center" fw={800}>
+          <Title order={2} ta="center" fw={800} style={!isDark ? { color: '#1a1b1e' } : undefined}>
             {t('contact.title')}
           </Title>
-          <Text c="dimmed" ta="center" maw={500} size="lg">
+          <Text
+            ta="center"
+            maw={500}
+            size="lg"
+            c={isDark ? 'dimmed' : undefined}
+            style={!isDark ? { color: '#868e96' } : undefined}
+          >
             {t('contact.subtitle')}
           </Text>
         </Stack>
 
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           {/* Contact form */}
-          <Paper className="glass-card animate-stagger-up" p="xl" radius="lg" style={{ '--stagger-delay': '0.1s' } as React.CSSProperties}>
+          <Paper
+            className="glass-card animate-stagger-up"
+            p="xl"
+            radius="lg"
+            style={{
+              '--stagger-delay': '0.1s',
+              ...(!isDark && {
+                background: '#ffffff',
+                border: '1px solid #e9ecef',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+              }),
+            } as React.CSSProperties}
+          >
             <Stack gap="md">
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
                 <TextInput
@@ -143,20 +167,34 @@ export function ContactSection() {
                 className="glass-card glass-card-hover animate-stagger-up"
                 p="lg"
                 radius="lg"
-                style={{ '--stagger-delay': `${(i + 1) * 0.12}s` } as React.CSSProperties}
+                style={{
+                  '--stagger-delay': `${(i + 1) * 0.12}s`,
+                  ...(!isDark && {
+                    background: '#ffffff',
+                    border: '1px solid #e9ecef',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                  }),
+                } as React.CSSProperties}
               >
                 <Group gap="md" align="flex-start">
                   <ThemeIcon size={48} radius="xl" variant="light" color={item.color}>
                     <item.icon size={24} />
                   </ThemeIcon>
                   <Stack gap={2} style={{ flex: 1 }}>
-                    <Text fw={700} size="sm">{t(item.titleKey)}</Text>
-                    <Text c="dimmed" size="sm">{t(item.valueKey)}</Text>
+                    <Text fw={700} size="sm" style={!isDark ? { color: '#1a1b1e' } : undefined}>
+                      {t(item.titleKey)}
+                    </Text>
+                    <Text
+                      size="sm"
+                      c={isDark ? 'dimmed' : undefined}
+                      style={!isDark ? { color: '#868e96' } : undefined}
+                    >
+                      {t(item.valueKey)}
+                    </Text>
                   </Stack>
                 </Group>
               </Paper>
             ))}
-
           </Stack>
         </SimpleGrid>
       </Container>

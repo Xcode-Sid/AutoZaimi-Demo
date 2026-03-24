@@ -1,4 +1,4 @@
-import { Container, Title, Text, SimpleGrid, Stack, ThemeIcon, Box } from '@mantine/core';
+import { Container, Title, Text, SimpleGrid, Stack, ThemeIcon, Box, useMantineColorScheme } from '@mantine/core';
 import { IconCar, IconCalendarEvent, IconKey } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,8 @@ const steps = [
 
 export function HowItWorks() {
   const { t } = useTranslation();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <Box py={80} style={{ position: 'relative' }}>
@@ -17,7 +19,7 @@ export function HowItWorks() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)',
+          background: isDark ?  'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)' : '#ffffff',
           pointerEvents: 'none',
         }}
       />
@@ -27,7 +29,13 @@ export function HowItWorks() {
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--az-purple)', boxShadow: '0 0 8px var(--az-purple)' }} />
             {t('howItWorks.title')}
           </div>
-          <Title order={2} ta="center" fw={800} className="animate-slide-up">
+          <Title
+            order={2}
+            ta="center"
+            fw={800}
+            className="animate-slide-up"
+            style={!isDark ? { color: '#1a1b1e' } : undefined}
+          >
             {t('howItWorks.title')}
           </Title>
         </Stack>
@@ -44,6 +52,12 @@ export function HowItWorks() {
                 borderRadius: 'var(--mantine-radius-xl)',
                 '--stagger-delay': `${i * 0.15}s`,
                 position: 'relative',
+                // Light mode overrides only — dark keeps its existing glass-card styles
+                ...(!isDark && {
+                  background: '#ffffff',
+                  border: '1px solid #e9ecef',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                }),
               } as React.CSSProperties}
             >
               {/* Step number */}
@@ -62,10 +76,22 @@ export function HowItWorks() {
               >
                 <step.icon size={36} />
               </ThemeIcon>
-              <Text size="xl" fw={700} ta="center">
+
+              <Text
+                size="xl"
+                fw={700}
+                ta="center"
+                style={!isDark ? { color: '#1a1b1e' } : undefined}
+              >
                 {t(step.titleKey)}
               </Text>
-              <Text c="dimmed" ta="center" size="sm">
+
+              <Text
+                ta="center"
+                size="sm"
+                c={isDark ? 'dimmed' : undefined}
+                style={!isDark ? { color: '#868e96' } : undefined}
+              >
                 {t(step.descKey)}
               </Text>
             </Stack>

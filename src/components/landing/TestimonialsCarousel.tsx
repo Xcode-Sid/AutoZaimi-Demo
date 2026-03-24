@@ -1,4 +1,4 @@
-import { Container, Title, Text, Stack, Avatar, Rating, Paper, Box, Group } from '@mantine/core';
+import { Container, Title, Text, Stack, Avatar, Rating, Paper, Box, Group, useMantineColorScheme } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { IconQuote } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +6,8 @@ import { testimonials } from '../../data/testimonials';
 
 export function TestimonialsCarousel() {
   const { t } = useTranslation();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <Box py={80} style={{ position: 'relative' }}>
@@ -14,9 +16,10 @@ export function TestimonialsCarousel() {
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.03,
-          backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
-          backgroundSize: '40px 40px',
+          background: isDark
+            ? 'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)'
+            : '#ffffff',
+          opacity: isDark ? 1 : undefined,
           pointerEvents: 'none',
         }}
       />
@@ -26,10 +29,20 @@ export function TestimonialsCarousel() {
             <IconQuote size={14} />
             {t('testimonials.title')}
           </div>
-          <Title order={2} ta="center" fw={800}>
+          <Title
+            order={2}
+            ta="center"
+            fw={800}
+            style={!isDark ? { color: '#1a1b1e' } : undefined}
+          >
             {t('testimonials.title')}
           </Title>
-          <Text c="dimmed" ta="center" maw={500}>
+          <Text
+            ta="center"
+            maw={500}
+            c={isDark ? 'dimmed' : undefined}
+            style={!isDark ? { color: '#868e96' } : undefined}
+          >
             {t('testimonials.subtitle')}
           </Text>
         </Stack>
@@ -46,10 +59,26 @@ export function TestimonialsCarousel() {
                 p="xl"
                 radius="lg"
                 h="100%"
-                style={{ position: 'relative', overflow: 'visible' }}
+                style={{
+                  position: 'relative',
+                  overflow: 'visible',
+                  ...(!isDark && {
+                    background: '#ffffff',
+                    border: '1px solid #e9ecef',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                  }),
+                }}
               >
                 <Stack gap="md" justify="space-between" h="100%">
-                  <Text size="md" fs="italic" lineClamp={4} style={{ lineHeight: 1.7 }}>
+                  <Text
+                    size="md"
+                    fs="italic"
+                    lineClamp={4}
+                    style={{
+                      lineHeight: 1.7,
+                      ...(!isDark && { color: '#1a1b1e' }),
+                    }}
+                  >
                     "{item.quote}"
                   </Text>
                   <Stack gap="xs">
@@ -64,8 +93,20 @@ export function TestimonialsCarousel() {
                         {item.authorAvatar}
                       </Avatar>
                       <div>
-                        <Text size="sm" fw={600}>{item.authorName}</Text>
-                        <Text size="xs" c="dimmed">{item.city}</Text>
+                        <Text
+                          size="sm"
+                          fw={600}
+                          style={!isDark ? { color: '#1a1b1e' } : undefined}
+                        >
+                          {item.authorName}
+                        </Text>
+                        <Text
+                          size="xs"
+                          c={isDark ? 'dimmed' : undefined}
+                          style={!isDark ? { color: '#868e96' } : undefined}
+                        >
+                          {item.city}
+                        </Text>
                       </div>
                     </Group>
                   </Stack>
