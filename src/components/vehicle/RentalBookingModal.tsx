@@ -257,11 +257,10 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                 )}
                 <Button
                   fullWidth
-                  variant="gradient"
-                  gradient={{ from: 'teal.7', to: 'teal.5' }}
+                  variant="filled"
+                  color="teal"
                   onClick={goForward}
                   disabled={!canContinue}
-                  className="animate-shimmer"
                   radius="md"
                   size="md"
                   mt="xs"
@@ -446,10 +445,9 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                     {t('rental.back')}
                   </Button>
                   <Button
-                    variant="gradient"
-                    gradient={{ from: 'teal.7', to: 'teal.5' }}
+                    variant="filled"
+                    color="teal"
                     onClick={handleConfirm}
-                    className="animate-shimmer"
                     radius="md"
                   >
                     {t('rental.confirm')}

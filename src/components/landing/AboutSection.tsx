@@ -30,15 +30,6 @@ export function AboutSection() {
 
   return (
     <Box id="about" py={80} style={{ position: 'relative', scrollMarginTop: 80 }}>
-      {/* Subtle gradient bg */}
-      <Box
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)',
-          pointerEvents: 'none',
-        }}
-      />
       <Container size="lg" style={{ position: 'relative' }}>
         <Stack align="center" gap="xs" mb={50} className="animate-slide-up">
           <Title order={2} ta="center" fw={800}>
@@ -58,7 +49,7 @@ export function AboutSection() {
 
             <Paper className="glass-card" p="lg" radius="lg">
               <Group gap="md" align="flex-start">
-                <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'teal', to: 'purple' }}>
+                <ThemeIcon size={48} radius="xl" variant="filled" color="teal">
                   <IconTargetArrow size={24} />
                 </ThemeIcon>
                 <Stack gap={4} style={{ flex: 1 }}>
@@ -83,7 +74,7 @@ export function AboutSection() {
                 <Text
                   size="2rem"
                   fw={900}
-                  className="text-gradient"
+                  c="teal"
                 >
                   {t(`about.stats.${key}Value`)}
                 </Text>

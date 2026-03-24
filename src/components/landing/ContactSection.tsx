@@ -55,14 +55,6 @@ export function ContactSection() {
 
   return (
     <Box id="contact" py={80} style={{ position: 'relative', scrollMarginTop: 80 }}>
-      <Box
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,191,165,0.03) 50%, transparent 100%)',
-          pointerEvents: 'none',
-        }}
-      />
       <Container size="lg" style={{ position: 'relative' }}>
         <Stack align="center" gap="xs" mb={50} className="animate-slide-up">
           <Title order={2} ta="center" fw={800}>
@@ -121,13 +113,12 @@ export function ContactSection() {
                 radius="md"
               />
               <Button
-                variant="gradient"
-                gradient={{ from: 'teal.7', to: 'teal.5' }}
+                variant="filled"
+                color="teal"
                 size="md"
                 leftSection={<IconSend size={18} />}
                 onClick={handleSubmit}
                 disabled={!name || !email || !message}
-                className="animate-shimmer"
                 radius="md"
               >
                 {t('contact.send')}

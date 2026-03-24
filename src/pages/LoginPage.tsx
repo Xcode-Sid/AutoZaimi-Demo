@@ -16,7 +16,6 @@ import {
 import {
   IconMail,
   IconLock,
-  IconCar,
   IconBrandGoogle,
   IconBrandFacebook,
   IconBrandWindows,
@@ -72,10 +71,7 @@ export default function LoginPage() {
       <Container size={440} w="100%">
         <Stack align="center" mb="xl" className="animate-slide-up">
           <Group gap={8} onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <IconCar size={36} color="var(--mantine-color-teal-6)" />
-            <Text size="2rem" fw={800} className="text-gradient">
-              AutoZaimi
-            </Text>
+            <img src="/autozaimi-logo.png" alt="AutoZaimi" style={{ height: 40 }} />
           </Group>
           <Text size="xl" fw={700}>{t('login.title')}</Text>
           <Text c="dimmed" size="sm">{t('login.subtitle')}</Text>
@@ -112,8 +108,8 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 fullWidth
-                variant="gradient"
-                gradient={{ from: 'purple', to: 'teal' }}
+                variant="filled"
+                color="teal"
                 size="md"
                 loading={loading}
               >

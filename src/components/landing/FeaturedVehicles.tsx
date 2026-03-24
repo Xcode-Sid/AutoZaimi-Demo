@@ -12,15 +12,6 @@ export function FeaturedVehicles() {
 
   return (
     <Box py={80} style={{ position: 'relative' }}>
-      {/* Section gradient bg */}
-      <Box
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(0,191,165,0.03) 50%, transparent 100%)',
-          pointerEvents: 'none',
-        }}
-      />
       <Container size="xl" style={{ position: 'relative' }}>
         <Stack align="center" gap="sm" mb={40} className="animate-slide-up">
           <div className="section-label">
@@ -43,13 +34,13 @@ export function FeaturedVehicles() {
 
         <Group justify="center" mt={40}>
           <Button
-            variant="gradient"
-            gradient={{ from: 'teal.7', to: 'teal.5' }}
+            variant="filled"
+            color="teal"
             size="md"
             rightSection={<IconArrowRight size={16} />}
             onClick={() => navigate('/fleet')}
             radius="xl"
-            className="animate-shimmer btn-glow"
+            className="btn-glow"
           >
             {t('fleet.title')}
           </Button>

@@ -250,8 +250,8 @@ export default function VehicleDetailPage() {
                     minRows={3}
                   />
                   <Button
-                    variant="gradient"
-                    gradient={{ from: 'purple', to: 'teal' }}
+                    variant="filled"
+                    color="teal"
                     onClick={handleReviewSubmit}
                     disabled={!reviewRating || !reviewText}
                   >
@@ -299,9 +299,8 @@ export default function VehicleDetailPage() {
             <Button
               fullWidth
               size="lg"
-              variant="gradient"
-              gradient={{ from: 'teal.7', to: 'teal.5' }}
-              className="animate-shimmer"
+              variant="filled"
+              color="teal"
               onClick={() => setRentalOpen(true)}
             >
               {t('vehicle.rentNow')}

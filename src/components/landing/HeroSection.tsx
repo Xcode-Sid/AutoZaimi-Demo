@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   ThemeIcon,
   Paper,
+  useMantineColorScheme,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck } from '@tabler/icons-react';
@@ -43,6 +44,8 @@ function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
 export function HeroSection() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
 
   const locations = [
@@ -81,16 +84,12 @@ export function HeroSection() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(135deg, rgba(10,17,28,0.97) 0%, rgba(21,32,48,0.88) 50%, rgba(10,17,28,0.97) 100%)',
+          background: isDark
+            ? 'linear-gradient(135deg, rgba(13,17,23,0.95) 0%, rgba(22,27,34,0.88) 50%, rgba(13,17,23,0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248,250,252,0.94) 0%, rgba(241,245,249,0.88) 50%, rgba(248,250,252,0.94) 100%)',
           pointerEvents: 'none',
         }}
-        className="animate-gradient-shift"
       />
-
-      {/* Floating orbs */}
-      <div className="hero-orb hero-orb-1" />
-      <div className="hero-orb hero-orb-2" />
-      <div className="hero-orb hero-orb-3" />
 
       <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
         <Stack align="center" gap="xl" className="animate-slide-up">
@@ -108,7 +107,7 @@ export function HeroSection() {
             <Text
               component="span"
               inherit
-              className="text-gradient"
+              c="teal"
             >
               {t('hero.title')}
             </Text>
@@ -125,13 +124,15 @@ export function HeroSection() {
 
           {/* Search Card with animated gradient border */}
           <Box
-            className="glass-card animated-gradient-border animate-scale-in"
+            className="glass-card animate-scale-in"
             p={{ base: 'lg', sm: 'xl' }}
             w="100%"
             maw={720}
             style={{
               borderRadius: 'var(--mantine-radius-xl)',
-              boxShadow: '0 30px 80px rgba(0,0,0,0.35)',
+              boxShadow: isDark
+                ? '0 24px 64px rgba(0,0,0,0.25)'
+                : '0 16px 48px rgba(0,0,0,0.08)',
               border: 'none',
             }}
           >
@@ -159,11 +160,11 @@ export function HeroSection() {
               <Button
                 size="lg"
                 fullWidth
-                variant="gradient"
-                gradient={{ from: 'teal.7', to: 'teal.5' }}
+                variant="filled"
+                color="teal"
                 leftSection={<IconSearch size={20} />}
                 onClick={() => navigate('/fleet')}
-                className="animate-shimmer btn-glow"
+                className="btn-glow"
                 radius="xl"
               >
                 {t('hero.searchBtn')}
@@ -180,7 +181,7 @@ export function HeroSection() {
             ].map((stat, i) => (
               <Paper
                 key={stat.label}
-                className="glass-card gradient-border-card animate-stagger-up"
+                className="glass-card animate-stagger-up"
                 p="lg"
                 radius="lg"
                 ta="center"

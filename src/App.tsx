@@ -6,6 +6,8 @@ import { ProtectedRoute } from './components/common/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import FleetPage from './pages/FleetPage';
 import VehicleDetailPage from './pages/VehicleDetailPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -29,6 +31,8 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/fleet" element={<FleetPage />} />
         <Route path="/fleet/:id" element={<VehicleDetailPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Route>
 
       <Route path="/login" element={<LoginPage />} />

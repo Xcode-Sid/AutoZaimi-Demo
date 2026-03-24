@@ -11,6 +11,7 @@ import {
   Button,
   Burger,
   Box,
+  useMantineColorScheme,
 } from '@mantine/core';
 import {
   IconDashboard,
@@ -43,6 +44,8 @@ export function AdminLayout() {
   const location = useLocation();
   const { user } = useAuth();
   const [opened, setOpened] = useState(false);
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <AppShell
@@ -56,14 +59,16 @@ export function AdminLayout() {
       <AppShell.Navbar
         p="md"
         style={{
-          background: 'var(--mantine-color-dark-7)',
-          borderRight: '1px solid var(--mantine-color-dark-4)',
+          background: isDark ? 'var(--mantine-color-dark-7)' : '#F8FAFC',
+          borderRight: isDark
+            ? '1px solid var(--mantine-color-dark-5)'
+            : '1px solid #E2E8F0',
         }}
       >
         <AppShell.Section>
           <Group justify="space-between" mb="md">
             <Group gap={8}>
-              <Text fw={800} size="lg" className="text-gradient">
+              <Text fw={800} size="lg" c="teal">
                 AutoZaimi
               </Text>
               <Badge color="teal" size="sm" variant="filled">

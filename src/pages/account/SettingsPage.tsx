@@ -91,8 +91,8 @@ export default function SettingsPage() {
           </div>
 
           <Button
-            variant="gradient"
-            gradient={{ from: 'purple', to: 'teal' }}
+            variant="filled"
+            color="teal"
             w="fit-content"
             onClick={handleSave}
           >

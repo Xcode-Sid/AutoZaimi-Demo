@@ -89,8 +89,8 @@ export default function ProfilePage() {
             </SimpleGrid>
             <Button
               type="submit"
-              variant="gradient"
-              gradient={{ from: 'purple', to: 'teal' }}
+              variant="filled"
+              color="teal"
               w="fit-content"
             >
               {t('account.saveChanges')}
