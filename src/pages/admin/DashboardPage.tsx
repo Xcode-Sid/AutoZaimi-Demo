@@ -1,0 +1,479 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  SimpleGrid,
+  Paper,
+  Text,
+  Group,
+  Stack,
+  Title,
+  ThemeIcon,
+  Box,
+  Table,
+  Badge,
+  Button,
+  Progress,
+  Avatar,
+  Tooltip,
+} from '@mantine/core';
+import { AreaChart, BarChart, DonutChart } from '@mantine/charts';
+import {
+  IconCar,
+  IconCalendar,
+  IconCurrencyEuro,
+  IconClipboardList,
+  IconTrendingUp,
+  IconTool,
+  IconClock,
+  IconPlus,
+  IconEye,
+  IconFileExport,
+} from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { useBookings } from '../../contexts/BookingsContext';
+import { vehicles } from '../../data/vehicles';
+
+function AnimatedNumber({ target, prefix = '', suffix = '' }: { target: number; prefix?: string; suffix?: string }) {
+  const [value, setValue] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    let current = 0;
+    const duration = 1500;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      setValue(Math.floor(current));
+    }, 16);
+    return () => clearInterval(timer);
+  }, [target]);
+
+  return <>{prefix}{value.toLocaleString()}{suffix}</>;
+}
+
+const revenueData = [
+  { month: 'Jan', revenue: 18000 },
+  { month: 'Shk', revenue: 22000 },
+  { month: 'Mar', revenue: 19500 },
+  { month: 'Pri', revenue: 25000 },
+  { month: 'Maj', revenue: 23000 },
+  { month: 'Qer', revenue: 28000 },
+];
+
+const bookingsChartData = [
+  { week: 'Java 1', rentals: 12 },
+  { week: 'Java 2', rentals: 15 },
+  { week: 'Java 3', rentals: 10 },
+  { week: 'Java 4', rentals: 18 },
+];
+
+const popularCarsData = [
+  { car: 'BMW X5', bookings: 28 },
+  { car: 'Audi A4', bookings: 22 },
+  { car: 'Mercedes GLE', bookings: 19 },
+  { car: 'VW Golf', bookings: 16 },
+  { car: 'Audi Q7', bookings: 14 },
+];
+
+const fleetData = [
+  { name: 'Luksoze', value: 20, color: 'yellow.6' },
+  { name: 'SUV', value: 30, color: 'green.6' },
+  { name: 'Elektrike', value: 15, color: 'blue.6' },
+  { name: 'Ekonomike', value: 35, color: 'gray.6' },
+];
+
+const kpiSparklines: Record<string, { data: { x: string; y: number }[]; color: string }> = {
+  rentals: {
+    data: [
+      { x: '1', y: 18 }, { x: '2', y: 22 }, { x: '3', y: 19 }, { x: '4', y: 24 },
+      { x: '5', y: 21 }, { x: '6', y: 26 }, { x: '7', y: 24 },
+    ],
+    color: 'teal.5',
+  },
+  cars: {
+    data: [
+      { x: '1', y: 42 }, { x: '2', y: 44 }, { x: '3', y: 43 }, { x: '4', y: 45 },
+      { x: '5', y: 44 }, { x: '6', y: 46 }, { x: '7', y: 45 },
+    ],
+    color: 'purple.5',
+  },
+  revenue: {
+    data: [
+      { x: '1', y: 95 }, { x: '2', y: 102 }, { x: '3', y: 98 }, { x: '4', y: 115 },
+      { x: '5', y: 110 }, { x: '6', y: 120 }, { x: '7', y: 125 },
+    ],
+    color: 'green.5',
+  },
+  bookings: {
+    data: [
+      { x: '1', y: 12 }, { x: '2', y: 15 }, { x: '3', y: 10 }, { x: '4', y: 18 },
+      { x: '5', y: 14 }, { x: '6', y: 16 }, { x: '7', y: 18 },
+    ],
+    color: 'orange.5',
+  },
+};
+
+const statusColors: Record<string, string> = {
+  confirmed: 'green',
+  pending: 'yellow',
+  completed: 'gray',
+  cancelled: 'red',
+};
+
+export default function DashboardPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { bookings } = useBookings();
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const dateStr = time.toLocaleDateString('sq-AL', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const timeStr = time.toLocaleTimeString('sq-AL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+
+  const availableCount = vehicles.filter((v) => v.status === 'available').length;
+  const maintenanceCount = vehicles.filter((v) => v.status === 'maintenance').length;
+  const unavailableCount = vehicles.filter((v) => v.status === 'unavailable').length;
+  const total = vehicles.length;
+
+  const kpis = [
+    {
+      title: t('admin.activeRentals'),
+      value: 24,
+      change: '+12%',
+      changeLabel: t('admin.fromLastMonth'),
+      icon: IconCalendar,
+      color: 'teal',
+      changeIcon: IconTrendingUp,
+      cardClass: 'kpi-card-teal',
+      sparkKey: 'rentals' as const,
+    },
+    {
+      title: t('admin.availableCars'),
+      value: 45,
+      change: '3',
+      changeLabel: t('admin.inMaintenance'),
+      icon: IconCar,
+      color: 'purple',
+      changeIcon: IconTool,
+      cardClass: 'kpi-card-purple',
+      sparkKey: 'cars' as const,
+    },
+    {
+      title: t('admin.totalRevenue'),
+      value: 125400,
+      prefix: '€',
+      change: '+8%',
+      changeLabel: t('admin.fromLastMonth'),
+      icon: IconCurrencyEuro,
+      color: 'green',
+      changeIcon: IconTrendingUp,
+      cardClass: 'kpi-card-green',
+      sparkKey: 'revenue' as const,
+    },
+    {
+      title: t('admin.newBookings'),
+      value: 18,
+      change: '5',
+      changeLabel: t('admin.pendingBookings'),
+      icon: IconClipboardList,
+      color: 'orange',
+      changeIcon: IconClock,
+      cardClass: 'kpi-card-orange',
+      sparkKey: 'bookings' as const,
+    },
+  ];
+
+  const recentBookings = bookings.slice(0, 5);
+
+  return (
+    <Stack gap="xl" className="animate-fade-in">
+      {/* Greeting Header */}
+      <Box>
+        <Title order={2} fw={800}>
+          <Text component="span" inherit className="text-gradient">
+            {t('admin.greeting')}, Admin!
+          </Text>{' '}
+          <Text component="span" inherit style={{ display: 'inline-block' }} className="animate-float">
+            👋
+          </Text>
+        </Title>
+        <Group gap="sm" mt={4}>
+          <Text c="dimmed" size="sm">{t('admin.todayIs')} {dateStr}</Text>
+          <Text c="teal" size="sm" fw={600} ff="monospace">{timeStr}</Text>
+        </Group>
+      </Box>
+
+      {/* KPI Cards */}
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+        {kpis.map((kpi, index) => {
+          const spark = kpiSparklines[kpi.sparkKey];
+          return (
+            <Paper
+              key={kpi.title}
+              className={`glass-card kpi-card ${kpi.cardClass} animate-stagger-up animate-card-glow`}
+              p="lg"
+              radius="lg"
+              style={{ '--stagger-delay': `${index * 0.1}s`, cursor: 'default' } as React.CSSProperties}
+            >
+              <Group justify="space-between" mb="xs">
+                <Text size="sm" c="dimmed" fw={500}>{kpi.title}</Text>
+                <ThemeIcon
+                  variant="light"
+                  color={kpi.color}
+                  size="lg"
+                  radius="md"
+                  style={{ transition: 'transform 0.3s' }}
+                >
+                  <kpi.icon size={20} />
+                </ThemeIcon>
+              </Group>
+              <Text size="2rem" fw={800} className="animate-number-pop">
+                <AnimatedNumber target={kpi.value} prefix={kpi.prefix || ''} />
+              </Text>
+              <Group gap={4} mt="xs">
+                <kpi.changeIcon size={14} color={`var(--mantine-color-${kpi.color}-6)`} />
+                <Text size="xs" c={kpi.color} fw={500}>{kpi.change}</Text>
+                <Text size="xs" c="dimmed">{kpi.changeLabel}</Text>
+              </Group>
+              <Box mt="sm" style={{ opacity: 0.6 }}>
+                <AreaChart
+                  h={40}
+                  data={spark.data}
+                  dataKey="x"
+                  series={[{ name: 'y', color: spark.color }]}
+                  withXAxis={false}
+                  withYAxis={false}
+                  withDots={false}
+                  withTooltip={false}
+                  gridAxis="none"
+                  curveType="natural"
+                  fillOpacity={0.3}
+                />
+              </Box>
+            </Paper>
+          );
+        })}
+      </SimpleGrid>
+
+      {/* Quick Actions */}
+      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.5s' } as React.CSSProperties}>
+        <Text fw={600} mb="md">{t('admin.quickActions')}</Text>
+        <Group gap="md" wrap="wrap">
+          <Tooltip label={t('admin.addNewCar')}>
+            <Button
+              leftSection={<IconPlus size={16} />}
+              variant="gradient"
+              gradient={{ from: 'teal.7', to: 'teal.5' }}
+              onClick={() => navigate('/admin/cars')}
+              className="animate-shimmer"
+              style={{ transition: 'transform 0.2s' }}
+            >
+              {t('admin.addNewCar')}
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('admin.viewBookings')}>
+            <Button
+              leftSection={<IconEye size={16} />}
+              variant="outline"
+              color="purple"
+              onClick={() => navigate('/admin/bookings')}
+              style={{ transition: 'all 0.2s' }}
+            >
+              {t('admin.viewBookings')}
+            </Button>
+          </Tooltip>
+          <Tooltip label={t('admin.exportReport')}>
+            <Button
+              leftSection={<IconFileExport size={16} />}
+              variant="outline"
+              color="gray"
+              onClick={() => navigate('/admin/reports')}
+              style={{ transition: 'all 0.2s' }}
+            >
+              {t('admin.exportReport')}
+            </Button>
+          </Tooltip>
+        </Group>
+      </Paper>
+
+      {/* Fleet Status Bar */}
+      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.6s' } as React.CSSProperties}>
+        <Text fw={600} mb="md">{t('admin.fleetStatus')}</Text>
+        <Progress.Root size={28} radius="xl">
+          <Tooltip label={`${t('admin.available')}: ${availableCount}`}>
+            <Progress.Section value={(availableCount / total) * 100} color="green">
+              <Progress.Label>{t('admin.available')} ({availableCount})</Progress.Label>
+            </Progress.Section>
+          </Tooltip>
+          <Tooltip label={`${t('admin.maintenance')}: ${maintenanceCount}`}>
+            <Progress.Section value={(maintenanceCount / total) * 100} color="orange">
+              <Progress.Label>{t('admin.maintenance')} ({maintenanceCount})</Progress.Label>
+            </Progress.Section>
+          </Tooltip>
+          <Tooltip label={`${t('admin.unavailable')}: ${unavailableCount}`}>
+            <Progress.Section value={(unavailableCount / total) * 100} color="red">
+              <Progress.Label>{t('admin.unavailable')} ({unavailableCount})</Progress.Label>
+            </Progress.Section>
+          </Tooltip>
+        </Progress.Root>
+      </Paper>
+
+      {/* Charts */}
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.7s' } as React.CSSProperties}>
+          <Text fw={600} mb="md">{t('admin.revenueOverview')}</Text>
+          <AreaChart
+            h={250}
+            data={revenueData}
+            dataKey="month"
+            series={[{ name: 'revenue', color: 'teal.6' }]}
+            curveType="natural"
+            gridAxis="xy"
+            withDots
+            withTooltip
+            tooltipAnimationDuration={200}
+            fillOpacity={0.3}
+          />
+        </Paper>
+
+        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.8s' } as React.CSSProperties}>
+          <Text fw={600} mb="md">{t('admin.bookingsOverview')}</Text>
+          <BarChart
+            h={250}
+            data={bookingsChartData}
+            dataKey="week"
+            series={[{ name: 'rentals', color: 'teal.6' }]}
+            withTooltip
+            tooltipAnimationDuration={200}
+            withLegend
+          />
+        </Paper>
+      </SimpleGrid>
+
+      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.9s' } as React.CSSProperties}>
+          <Text fw={600} mb="md">{t('admin.popularCars')}</Text>
+          <BarChart
+            h={250}
+            data={popularCarsData}
+            dataKey="car"
+            series={[{ name: 'bookings', color: 'purple.6' }]}
+            orientation="vertical"
+            withTooltip
+            tooltipAnimationDuration={200}
+          />
+        </Paper>
+
+        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '1.0s' } as React.CSSProperties}>
+          <Text fw={600} mb="md">{t('admin.fleetDistribution')}</Text>
+          <Group justify="center">
+            <DonutChart
+              data={fleetData}
+              size={220}
+              thickness={30}
+              withLabelsLine
+              withLabels
+              tooltipDataSource="segment"
+            />
+          </Group>
+        </Paper>
+      </SimpleGrid>
+
+      {/* Recent Bookings Table */}
+      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '1.1s' } as React.CSSProperties}>
+        <Group justify="space-between" mb="md">
+          <Text fw={600}>{t('admin.recentBookings')}</Text>
+          <Button
+            variant="subtle"
+            size="xs"
+            color="teal"
+            onClick={() => navigate('/admin/bookings')}
+          >
+            {t('admin.viewBookings')}
+          </Button>
+        </Group>
+        {recentBookings.length === 0 ? (
+          <Stack align="center" py="xl" gap="md">
+            <ThemeIcon size={60} variant="light" color="gray" radius="xl">
+              <IconCalendar size={30} />
+            </ThemeIcon>
+            <Text c="dimmed" ta="center">{t('admin.noBookings') || 'No recent bookings'}</Text>
+            <Button variant="light" color="teal" onClick={() => navigate('/admin/bookings')}>
+              {t('admin.viewBookings')}
+            </Button>
+          </Stack>
+        ) : (
+          <Table.ScrollContainer minWidth={600}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>ID</Table.Th>
+                  <Table.Th>{t('admin.customer')}</Table.Th>
+                  <Table.Th>{t('admin.vehicle')}</Table.Th>
+                  <Table.Th>{t('admin.total')}</Table.Th>
+                  <Table.Th>{t('admin.status')}</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {recentBookings.map((b) => (
+                  <Table.Tr
+                    key={b.id}
+                    style={{ transition: 'background 0.2s', cursor: 'pointer' }}
+                  >
+                    <Table.Td>
+                      <Text size="sm" fw={500}>{b.ref}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap="sm">
+                        <Avatar size="sm" radius="xl" color="purple">
+                          {b.userId === 'user-1' ? 'AH' : '??'}
+                        </Avatar>
+                        <Text size="sm">
+                          {b.userId === 'user-1' ? 'Artan Hoxha' : 'Guest'}
+                        </Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>{b.vehicleName}</Table.Td>
+                    <Table.Td>
+                      <Text size="sm" fw={600}>€{b.total.toLocaleString()}</Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge
+                        color={statusColors[b.status]}
+                        variant="light"
+                        size="sm"
+                        className={b.status === 'pending' ? 'badge-pulse' : ''}
+                      >
+                        {b.status}
+                      </Badge>
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
+      </Paper>
+    </Stack>
+  );
+}
