@@ -23,9 +23,28 @@ import AdminSettingsPage from './pages/admin/SettingsPage';
 import AdminAnalyticsPage from './pages/admin/AnalyticsPage';
 import AdminReportsPage from './pages/admin/ReportsPage';
 import AdminAdsPage from './pages/admin/AdsPage';
+import { LanguageSwitcher } from './components/common/LanguageSwitcher';
+import { ThemeToggle } from './components/common/ThemeToggle';
+import { Box } from '@mantine/core';
 
 export default function App() {
   return (
+    <>
+    
+ <div
+  style={{
+    position: "fixed",
+    bottom: 16,
+    left: 16,
+    zIndex: 9999,
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+  }}
+>
+  <LanguageSwitcher />
+  <ThemeToggle />
+</div>
     <Routes>
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
@@ -35,32 +54,33 @@ export default function App() {
         <Route path="/contact" element={<ContactPage />} />
       </Route>
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AccountLayout />}>
-          <Route path="/account/profile" element={<ProfilePage />} />
-          <Route path="/account/saved" element={<SavedCarsPage />} />
-          <Route path="/account/bookings" element={<BookingsPage />} />
-          <Route path="/account/settings" element={<SettingsPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AccountLayout />}>
+            <Route path="/account/profile" element={<ProfilePage />} />
+            <Route path="/account/saved" element={<SavedCarsPage />} />
+            <Route path="/account/bookings" element={<BookingsPage />} />
+            <Route path="/account/settings" element={<SettingsPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      <Route element={<ProtectedRoute requireAdmin />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboardPage />} />
-          <Route path="/admin/cars" element={<AdminCarsPage />} />
-          <Route path="/admin/bookings" element={<AdminBookingsPage />} />
-          <Route path="/admin/customers" element={<AdminCustomersPage />} />
-          <Route path="/admin/settings" element={<AdminSettingsPage />} />
-          <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
-          <Route path="/admin/ads" element={<AdminAdsPage />} />
-          <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route element={<ProtectedRoute requireAdmin />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/cars" element={<AdminCarsPage />} />
+            <Route path="/admin/bookings" element={<AdminBookingsPage />} />
+            <Route path="/admin/customers" element={<AdminCustomersPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/ads" element={<AdminAdsPage />} />
+            <Route path="/admin/reports" element={<AdminReportsPage />} />
+          </Route>
         </Route>
-      </Route>
 
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    </>
   );
 }

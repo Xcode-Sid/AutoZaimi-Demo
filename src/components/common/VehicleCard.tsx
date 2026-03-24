@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Card, Image, Text, Group, Badge, Button, ActionIcon, Stack, Box, Divider } from '@mantine/core';
+import { Card, Image, Text, Group, Badge, Button, ActionIcon, Stack, Box, Divider, useMantineColorScheme } from '@mantine/core';
 import { IconHeart, IconHeartFilled, IconMapPin, IconUsers, IconManualGearbox, IconGasStation, IconStarFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useFavorites } from '../../contexts/FavoritesContext';
@@ -27,6 +27,8 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
   const fav = isFavorite(vehicle.id);
 
   return (
@@ -39,6 +41,12 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
         position: 'relative',
         '--stagger-delay': `${index * 0.1}s`,
         cursor: 'pointer',
+        // Light mode overrides only — dark keeps its existing glass-card styles
+        ...(!isDark && {
+          background: '#ffffff',
+          border: '1px solid #e9ecef',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+        }),
       } as React.CSSProperties}
       onClick={() => navigate(`/fleet/${vehicle.id}`)}
     >
@@ -106,14 +114,23 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
       {/* Card body */}
       <Stack gap="sm" p="md" pt="sm">
         <div>
-          <Text fw={700} size="md" lineClamp={1}>
+          <Text
+            fw={700}
+            size="md"
+            lineClamp={1}
+            style={!isDark ? { color: '#1a1b1e' } : undefined}
+          >
             {vehicle.name}
           </Text>
           <Group gap={6} mt={2}>
             <IconMapPin size={13} color="var(--mantine-color-teal-6)" />
-            <Text size="xs" c="dimmed">{vehicle.city}</Text>
-            <Text size="xs" c="dimmed">·</Text>
-            <Text size="xs" c="dimmed">{vehicle.year}</Text>
+            <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>
+              {vehicle.city}
+            </Text>
+            <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>·</Text>
+            <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>
+              {vehicle.year}
+            </Text>
           </Group>
         </div>
 
@@ -124,19 +141,40 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
 
         {/* Spec pills */}
         <Group gap={6} wrap="wrap">
-          <span className="spec-pill">
-            <IconUsers size={13} />
-            {vehicle.specs.seats}
-          </span>
-          <span className="spec-pill">
+          <Box
+            className="spec-pill"
+            px="xs"
+            py={4}
+          >
+            <IconUsers size={14} />
+            <Text size="sm">{vehicle.specs.seats}</Text>
+          </Box>
+          <Box
+            className="spec-pill"
+            px="xs"
+            py={4}
+          >
             <IconManualGearbox size={13} />
             {vehicle.specs.transmission}
-          </span>
-          <span className="spec-pill">
+          </Box>
+          <Box
+            className="spec-pill"
+            px="xs"
+            py={4}
+          >
+            <IconManualGearbox size={13} />
+            {vehicle.specs.transmission}
+          </Box>
+          <Box
+            className="spec-pill"
+            px="xs"
+            py={4}
+          >
             <IconGasStation size={13} />
             {vehicle.specs.fuel}
-          </span>
+          </Box>
         </Group>
+
 
         <Group grow mt={4}>
           <Button
@@ -148,7 +186,13 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
               e.stopPropagation();
               navigate(`/fleet/${vehicle.id}`);
             }}
-            style={{ transition: 'all 0.2s' }}
+            style={{
+              transition: 'all 0.2s',
+              ...(!isDark && {
+                borderColor: '#dee2e6',
+                color: '#495057',
+              }),
+            }}
           >
             {t('account.viewDetails')}
           </Button>

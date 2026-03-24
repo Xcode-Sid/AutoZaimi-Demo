@@ -159,9 +159,6 @@ export function Navbar() {
             )}
           </Group>
 
-          <LanguageSwitcher />
-          <ThemeToggle />
-
           {isLoggedIn && (
             <Indicator color="red" size={8} offset={4} processing>
               <ActionIcon
