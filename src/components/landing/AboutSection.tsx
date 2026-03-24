@@ -8,6 +8,7 @@ import {
   Box,
   Paper,
   Group,
+  useMantineColorScheme,
 } from '@mantine/core';
 import {
   IconCar,
@@ -27,24 +28,33 @@ const reasons = [
 
 export function AboutSection() {
   const { t } = useTranslation();
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   return (
     <Box id="about" py={80} style={{ position: 'relative', scrollMarginTop: 80 }}>
-      {/* Subtle gradient bg */}
       <Box
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)',
+          background: isDark
+            ? 'linear-gradient(180deg, transparent 0%, rgba(101,53,160,0.03) 50%, transparent 100%)'
+            : '#ffffff',
           pointerEvents: 'none',
         }}
       />
       <Container size="lg" style={{ position: 'relative' }}>
         <Stack align="center" gap="xs" mb={50} className="animate-slide-up">
-          <Title order={2} ta="center" fw={800}>
+          <Title order={2} ta="center" fw={800} style={!isDark ? { color: '#1a1b1e' } : undefined}>
             {t('about.title')}
           </Title>
-          <Text c="dimmed" ta="center" maw={600} size="lg">
+          <Text
+            ta="center"
+            maw={600}
+            size="lg"
+            c={isDark ? 'dimmed' : undefined}
+            style={!isDark ? { color: '#868e96' } : undefined}
+          >
             {t('about.subtitle')}
           </Text>
         </Stack>
@@ -52,18 +62,44 @@ export function AboutSection() {
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl" mb={50}>
           {/* Description */}
           <Stack gap="lg">
-            <Text c="dimmed" size="md" style={{ lineHeight: 1.8 }}>
+            <Text
+              size="md"
+              style={{
+                lineHeight: 1.8,
+                ...(!isDark && { color: '#868e96' }),
+              }}
+              c={isDark ? 'dimmed' : undefined}
+            >
               {t('about.description')}
             </Text>
 
-            <Paper className="glass-card" p="lg" radius="lg">
+            <Paper
+              className="glass-card"
+              p="lg"
+              radius="lg"
+              style={{
+                ...(!isDark && {
+                  background: '#ffffff',
+                  border: '1px solid #e9ecef',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                }),
+              }}
+            >
               <Group gap="md" align="flex-start">
                 <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'teal', to: 'purple' }}>
                   <IconTargetArrow size={24} />
                 </ThemeIcon>
                 <Stack gap={4} style={{ flex: 1 }}>
-                  <Text fw={700} size="lg">{t('about.mission')}</Text>
-                  <Text c="dimmed" size="sm">{t('about.missionText')}</Text>
+                  <Text fw={700} size="lg" style={!isDark ? { color: '#1a1b1e' } : undefined}>
+                    {t('about.mission')}
+                  </Text>
+                  <Text
+                    size="sm"
+                    c={isDark ? 'dimmed' : undefined}
+                    style={!isDark ? { color: '#868e96' } : undefined}
+                  >
+                    {t('about.missionText')}
+                  </Text>
                 </Stack>
               </Group>
             </Paper>
@@ -78,16 +114,24 @@ export function AboutSection() {
                 p="xl"
                 radius="lg"
                 ta="center"
-                style={{ '--stagger-delay': `${i * 0.1}s` } as React.CSSProperties}
+                style={{
+                  '--stagger-delay': `${i * 0.1}s`,
+                  ...(!isDark && {
+                    background: '#ffffff',
+                    border: '1px solid #e9ecef',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                  }),
+                } as React.CSSProperties}
               >
-                <Text
-                  size="2rem"
-                  fw={900}
-                  className="text-gradient"
-                >
+                <Text size="2rem" fw={900} className="text-gradient">
                   {t(`about.stats.${key}Value`)}
                 </Text>
-                <Text size="sm" c="dimmed" mt={4}>
+                <Text
+                  size="sm"
+                  mt={4}
+                  c={isDark ? 'dimmed' : undefined}
+                  style={!isDark ? { color: '#868e96' } : undefined}
+                >
                   {t(`about.stats.${key}Title`)}
                 </Text>
               </Paper>
@@ -97,7 +141,7 @@ export function AboutSection() {
 
         {/* Why us */}
         <Stack align="center" gap="xs" mb="xl">
-          <Title order={3} ta="center" fw={700}>
+          <Title order={3} ta="center" fw={700} style={!isDark ? { color: '#1a1b1e' } : undefined}>
             {t('about.whyUs')}
           </Title>
         </Stack>
@@ -110,7 +154,14 @@ export function AboutSection() {
               p="xl"
               radius="lg"
               ta="center"
-              style={{ '--stagger-delay': `${i * 0.1}s` } as React.CSSProperties}
+              style={{
+                '--stagger-delay': `${i * 0.1}s`,
+                ...(!isDark && {
+                  background: '#ffffff',
+                  border: '1px solid #e9ecef',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                }),
+              } as React.CSSProperties}
             >
               <ThemeIcon
                 size={56}
@@ -122,8 +173,16 @@ export function AboutSection() {
               >
                 <reason.icon size={28} />
               </ThemeIcon>
-              <Text fw={700} mb={4}>{t(reason.titleKey)}</Text>
-              <Text size="sm" c="dimmed">{t(reason.descKey)}</Text>
+              <Text fw={700} mb={4} style={!isDark ? { color: '#1a1b1e' } : undefined}>
+                {t(reason.titleKey)}
+              </Text>
+              <Text
+                size="sm"
+                c={isDark ? 'dimmed' : undefined}
+                style={!isDark ? { color: '#868e96' } : undefined}
+              >
+                {t(reason.descKey)}
+              </Text>
             </Paper>
           ))}
         </SimpleGrid>
