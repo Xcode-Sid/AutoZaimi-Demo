@@ -55,7 +55,7 @@ export function TestimonialsCarousel() {
           {testimonials.map((item) => (
             <Carousel.Slide key={item.id}>
               <Paper
-                className="glass-card glass-card-hover gradient-border-card quote-decoration"
+                className="glass-card glass-card-hover quote-decoration"
                 p="xl"
                 radius="lg"
                 h="100%"

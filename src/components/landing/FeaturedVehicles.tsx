@@ -57,13 +57,13 @@ export function FeaturedVehicles() {
 
         <Group justify="center" mt={40}>
           <Button
-            variant="gradient"
-            gradient={{ from: 'teal.7', to: 'teal.5' }}
+            variant="filled"
+            color="teal"
             size="md"
             rightSection={<IconArrowRight size={16} />}
             onClick={() => navigate('/fleet')}
             radius="xl"
-            className="animate-shimmer btn-glow"
+            className="btn-glow"
           >
             {t('fleet.title')}
           </Button>

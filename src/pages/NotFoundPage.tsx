@@ -16,7 +16,7 @@ export default function NotFoundPage() {
         <Text
           size="3rem"
           fw={900}
-          className="text-gradient"
+          c="teal"
           ta="center"
         >
           404
@@ -28,8 +28,8 @@ export default function NotFoundPage() {
           {t('notFound.subtitle')}
         </Text>
         <Button
-          variant="gradient"
-          gradient={{ from: 'purple', to: 'teal' }}
+          variant="filled"
+          color="teal"
           size="lg"
           onClick={() => navigate('/')}
         >

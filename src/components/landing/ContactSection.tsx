@@ -145,13 +145,12 @@ export function ContactSection() {
                 radius="md"
               />
               <Button
-                variant="gradient"
-                gradient={{ from: 'teal.7', to: 'teal.5' }}
+                variant="filled"
+                color="teal"
                 size="md"
                 leftSection={<IconSend size={18} />}
                 onClick={handleSubmit}
                 disabled={!name || !email || !message}
-                className="animate-shimmer"
                 radius="md"
               >
                 {t('contact.send')}

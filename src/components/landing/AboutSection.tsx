@@ -86,7 +86,7 @@ export function AboutSection() {
               }}
             >
               <Group gap="md" align="flex-start">
-                <ThemeIcon size={48} radius="xl" variant="gradient" gradient={{ from: 'teal', to: 'purple' }}>
+                <ThemeIcon size={48} radius="xl" variant="filled" color="teal">
                   <IconTargetArrow size={24} />
                 </ThemeIcon>
                 <Stack gap={4} style={{ flex: 1 }}>

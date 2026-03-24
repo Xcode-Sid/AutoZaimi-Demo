@@ -33,7 +33,7 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
 
   return (
     <Card
-      className="glass-card glass-card-hover gradient-border-card animate-stagger-up"
+      className="glass-card glass-card-hover animate-stagger-up"
       radius="lg"
       padding={0}
       style={{
@@ -78,8 +78,8 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
             right: 12,
             zIndex: 4,
             backdropFilter: 'blur(8px)',
-            background: fav ? undefined : 'rgba(0,0,0,0.35)',
-            border: fav ? undefined : '1px solid rgba(255,255,255,0.15)',
+            background: fav ? undefined : 'rgba(0,0,0,0.25)',
+            border: fav ? undefined : '1px solid rgba(255,255,255,0.12)',
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -104,8 +104,8 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
 
         {/* Rating overlay */}
         <Box style={{ position: 'absolute', bottom: 12, left: 12, zIndex: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-          <IconStarFilled size={13} color="#F5A623" />
-          <Text size="xs" fw={700} c="white" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+          <IconStarFilled size={13} color="#F5B544" />
+          <Text size="xs" fw={700} c="white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>
             4.{8 - (index % 3)}
           </Text>
         </Box>
@@ -197,11 +197,11 @@ export function VehicleCard({ vehicle, index = 0 }: Props) {
             {t('account.viewDetails')}
           </Button>
           <Button
-            variant="gradient"
-            gradient={{ from: 'teal.7', to: 'teal.5' }}
+            variant="filled"
+            color="teal"
             size="xs"
             radius="md"
-            className="animate-shimmer btn-glow"
+            className="btn-glow"
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/fleet/${vehicle.id}`);

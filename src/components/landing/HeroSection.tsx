@@ -90,7 +90,6 @@ export function HeroSection() {
             : 'linear-gradient(135deg, rgba(248,249,250,0.97) 0%, rgba(255,255,255,0.88) 50%, rgba(248,249,250,0.97) 100%)',
           pointerEvents: 'none',
         }}
-        className="animate-gradient-shift"
       />
 
       {/* Floating orbs — hidden in light mode */}
@@ -122,7 +121,7 @@ export function HeroSection() {
             <Text
               component="span"
               inherit
-              className="text-gradient"
+              c="teal"
             >
               {t('hero.title')}
             </Text>
@@ -177,11 +176,11 @@ export function HeroSection() {
               <Button
                 size="lg"
                 fullWidth
-                variant="gradient"
-                gradient={{ from: 'teal.7', to: 'teal.5' }}
+                variant="filled"
+                color="teal"
                 leftSection={<IconSearch size={20} />}
                 onClick={() => navigate('/fleet')}
-                className="animate-shimmer btn-glow"
+                className="btn-glow"
                 radius="xl"
               >
                 {t('hero.searchBtn')}

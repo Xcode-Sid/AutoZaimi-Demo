@@ -1,13 +1,9 @@
-import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Container, Text, Box, Title, Stack, Paper, ThemeIcon } from '@mantine/core';
+import { Text, Box, Title, Stack, Container, Paper, ThemeIcon } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { HeroSection } from '../components/landing/HeroSection';
 import { FeaturedVehicles } from '../components/landing/FeaturedVehicles';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { TestimonialsCarousel } from '../components/landing/TestimonialsCarousel';
-import { AboutSection } from '../components/landing/AboutSection';
-import { ContactSection } from '../components/landing/ContactSection';
 
 const partnerLogos = [
   { name: 'Mercedes-Benz', letter: 'MB', color: '#C0C0C0' },
@@ -41,7 +37,7 @@ function PartnersLogos() {
           {allLogos.map((logo, i) => (
             <Paper
               key={`${logo.name}-${i}`}
-              className="glass-card gradient-border-card"
+              className="glass-card"
               px="xl"
               py="md"
               radius="lg"
@@ -71,20 +67,6 @@ function PartnersLogos() {
 }
 
 export default function HomePage() {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (location.hash) {
-      const id = location.hash.replace('#', '');
-      const el = document.getElementById(id);
-      if (el) {
-        setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-    }
-  }, [location.hash]);
-
   return (
     <>
       <HeroSection />
@@ -96,10 +78,6 @@ export default function HomePage() {
       <PartnersLogos />
       <SectionDivider />
       <TestimonialsCarousel />
-      <SectionDivider />
-      <AboutSection />
-      <SectionDivider />
-      <ContactSection />
     </>
   );
 }

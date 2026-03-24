@@ -26,7 +26,6 @@ import {
   IconBell,
   IconSearch,
   IconShieldCheck,
-  IconCar,
   IconX,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -57,8 +56,8 @@ export function Navbar() {
   const navLinks = [
     { label: t('nav.home'), path: '/', hash: '' },
     { label: t('nav.fleet'), path: '/fleet', hash: '' },
-    { label: t('nav.about'), path: '/', hash: 'about' },
-    { label: t('nav.contact'), path: '/', hash: 'contact' },
+    { label: t('nav.about'), path: '/about', hash: '' },
+    { label: t('nav.contact'), path: '/contact', hash: '' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -95,15 +94,7 @@ export function Navbar() {
       <Group justify="space-between" h={70} px="xl" maw={1400} mx="auto">
         <UnstyledButton component={Link} to="/">
           <Group gap={8}>
-            <IconCar size={32} className="nav-logo-icon" color="var(--mantine-color-teal-6)" />
-            <Text
-              size="xl"
-              fw={800}
-              className="text-gradient"
-              style={{ letterSpacing: '-0.5px', transition: 'all 0.3s' }}
-            >
-              AutoZaimi
-            </Text>
+            <img src="/autozaimi-logo.png" alt="AutoZaimi" style={{ height: 32 }} />
           </Group>
         </UnstyledButton>
 
@@ -245,11 +236,10 @@ export function Navbar() {
                 {t('nav.login')}
               </Button>
               <Button
-                variant="gradient"
-                gradient={{ from: 'purple', to: 'teal' }}
+                variant="filled"
+                color="teal"
                 size="sm"
                 onClick={() => navigate('/register')}
-                className="animate-shimmer"
               >
                 {t('nav.register')}
               </Button>
@@ -271,8 +261,7 @@ export function Navbar() {
         size="xs"
         title={
           <Group gap={8}>
-            <IconCar size={24} color="var(--mantine-color-teal-6)" />
-            <Text fw={700} className="text-gradient">AutoZaimi</Text>
+            <img src="/autozaimi-logo.png" alt="AutoZaimi" style={{ height: 32 }} />
           </Group>
         }
         padding="md"
@@ -380,11 +369,11 @@ export function Navbar() {
                 {t('nav.login')}
               </Button>
               <Button
-                variant="gradient"
-                gradient={{ from: 'purple', to: 'teal' }}
+                variant="filled"
+                color="teal"
                 fullWidth
                 onClick={() => { navigate('/register'); setDrawerOpen(false); }}
-                className="animate-shimmer drawer-stagger-item"
+                className="drawer-stagger-item"
                 style={{ '--stagger-delay': '0.34s' } as React.CSSProperties}
               >
                 {t('nav.register')}

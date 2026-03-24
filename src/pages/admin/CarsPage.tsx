@@ -118,8 +118,8 @@ export default function CarsPage() {
         </Title>
         <Button
           leftSection={<IconPlus size={16} />}
-          variant="gradient"
-          gradient={{ from: 'teal.7', to: 'teal.5' }}
+          variant="filled"
+          color="teal"
           onClick={openAddModal}
         >
           {t('admin.addCar')}
@@ -256,8 +256,8 @@ export default function CarsPage() {
           <TextInput label={t('admin.imageUrl')} {...form.getInputProps('image')} />
           <Textarea label={t('admin.description')} minRows={3} {...form.getInputProps('description')} />
           <Button
-            variant="gradient"
-            gradient={{ from: 'purple', to: 'teal' }}
+            variant="filled"
+            color="teal"
             onClick={handleSave}
             fullWidth
           >

@@ -37,8 +37,8 @@ export default function AdminSettingsPage() {
           <Switch label="Enable new user registrations" defaultChecked color="teal" />
           <Switch label="Show promotional banner" defaultChecked color="teal" />
           <Button
-            variant="gradient"
-            gradient={{ from: 'purple', to: 'teal' }}
+            variant="filled"
+            color="teal"
             w="fit-content"
             onClick={handleSave}
           >

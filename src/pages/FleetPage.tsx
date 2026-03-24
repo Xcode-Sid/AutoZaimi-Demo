@@ -162,9 +162,8 @@ export default function FleetPage() {
                   <ThemeIcon
                     size={40}
                     radius="xl"
-                    variant={isActive ? 'gradient' : 'light'}
-                    gradient={{ from: 'teal', to: 'purple' }}
-                    color={categoryColors[cat]}
+                    variant={isActive ? 'filled' : 'light'}
+                    color={isActive ? 'teal' : categoryColors[cat]}
                   >
                     <Icon size={20} />
                   </ThemeIcon>
@@ -256,8 +255,8 @@ export default function FleetPage() {
 
       <Group grow>
         <Button
-          variant="gradient"
-          gradient={{ from: 'teal.7', to: 'teal.5' }}
+          variant="filled"
+          color="teal"
           onClick={() => setDrawerOpen(false)}
         >
           {t('fleet.applyFilters')}

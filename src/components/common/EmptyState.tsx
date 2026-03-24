@@ -28,8 +28,8 @@ export function EmptyState({ icon, title, description, actionLabel, actionPath }
       )}
       {actionLabel && actionPath && (
         <Button
-          variant="gradient"
-          gradient={{ from: 'purple', to: 'teal' }}
+          variant="filled"
+          color="teal"
           size="md"
           onClick={() => navigate(actionPath)}
           mt="sm"

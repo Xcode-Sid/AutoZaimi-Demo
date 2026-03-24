@@ -26,7 +26,7 @@ export function HowItWorks() {
       <Container size="lg" style={{ position: 'relative' }}>
         <Stack align="center" gap="sm" mb={40}>
           <div className="section-label">
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--az-purple)', boxShadow: '0 0 8px var(--az-purple)' }} />
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--az-purple)', boxShadow: '0 0 6px var(--az-purple)' }} />
             {t('howItWorks.title')}
           </div>
           <Title
@@ -46,7 +46,7 @@ export function HowItWorks() {
               key={i}
               align="center"
               gap="md"
-              className={`glass-card glass-card-hover gradient-border-card animate-stagger-up ${i < steps.length - 1 ? 'step-connector' : ''}`}
+              className={`glass-card glass-card-hover animate-stagger-up ${i < steps.length - 1 ? 'step-connector' : ''}`}
               p="xl"
               style={{
                 borderRadius: 'var(--mantine-radius-xl)',
@@ -66,13 +66,10 @@ export function HowItWorks() {
               <ThemeIcon
                 size={72}
                 radius="xl"
-                variant="gradient"
-                gradient={{
-                  from: step.color === 'purple' ? 'purple' : step.color === 'teal' ? 'teal' : 'magenta',
-                  to: step.color === 'purple' ? 'magenta' : step.color === 'teal' ? 'purple' : 'teal',
-                }}
+                variant="light"
+                color={step.color}
                 className="animate-float"
-                style={{ animationDelay: `${i * 0.3}s`, boxShadow: `0 8px 30px rgba(0,191,165,0.2)` }}
+                style={{ animationDelay: `${i * 0.3}s`, boxShadow: `0 6px 20px rgba(45,212,168,0.12)` }}
               >
                 <step.icon size={36} />
               </ThemeIcon>

@@ -87,8 +87,8 @@ export default function AdsPage() {
         </Title>
         <Button
           leftSection={<IconPlus size={16} />}
-          variant="gradient"
-          gradient={{ from: 'teal.7', to: 'teal.5' }}
+          variant="filled"
+          color="teal"
           onClick={openAddModal}
         >
           {t('admin.addAd')}
@@ -183,8 +183,8 @@ export default function AdsPage() {
             color="teal"
           />
           <Button
-            variant="gradient"
-            gradient={{ from: 'purple', to: 'teal' }}
+            variant="filled"
+            color="teal"
             onClick={handleSave}
             fullWidth
           >

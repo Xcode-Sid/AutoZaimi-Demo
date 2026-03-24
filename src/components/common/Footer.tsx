@@ -17,7 +17,6 @@ import {
   IconBrandInstagram,
   IconBrandTwitter,
   IconBrandYoutube,
-  IconCar,
   IconPhone,
   IconMail,
   IconMapPin,
@@ -43,18 +42,13 @@ export function Footer() {
   return (
     <Box component="footer">
       {/* Gradient divider */}
-      <div className="footer-gradient-divider" />
+      <div className="footer-divider" />
 
       <Box py={60}>
         <Container size="xl">
           <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing={40}>
             <Stack gap="md">
-              <Group gap={8}>
-                <IconCar size={28} color="var(--mantine-color-teal-6)" />
-                <Text size="xl" fw={800} className="text-gradient">
-                  AutoZaimi
-                </Text>
-              </Group>
+              <img src="/autozaimi-logo.png" alt="AutoZaimi" style={{ height: 28 }} />
               <Text size="sm" c="dimmed" maw={280}>
                 {t('footer.description')}
               </Text>
@@ -108,13 +102,13 @@ export function Footer() {
 
             <Stack gap="sm">
               <Text fw={600} size="md">{t('footer.quickLinks')}</Text>
-              <Text component={Link} to="/" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
+              <Text component={Link} to="/about" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
                 {t('footer.aboutUs')}
               </Text>
               <Text component={Link} to="/fleet" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
                 {t('footer.fleet')}
               </Text>
-              <Text component={Link} to="/" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
+              <Text component={Link} to="/contact" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
                 {t('footer.contact')}
               </Text>
               <Text component={Link} to="/" size="sm" c="dimmed" style={{ textDecoration: 'none', transition: 'color 0.2s' }}>
@@ -142,12 +136,11 @@ export function Footer() {
                   onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
                 />
                 <Button
-                  variant="gradient"
-                  gradient={{ from: 'purple', to: 'teal' }}
+                  variant="filled"
+                  color="teal"
                   onClick={handleSubscribe}
                   fullWidth
                   radius="md"
-                  className="animate-shimmer"
                 >
                   {t('footer.subscribe')}
                 </Button>

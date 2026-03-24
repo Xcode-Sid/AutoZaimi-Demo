@@ -210,7 +210,7 @@ export default function DashboardPage() {
       {/* Greeting Header */}
       <Box>
         <Title order={2} fw={800}>
-          <Text component="span" inherit className="text-gradient">
+          <Text component="span" inherit c="teal">
             {t('admin.greeting')}, Admin!
           </Text>{' '}
           <Text component="span" inherit style={{ display: 'inline-block' }} className="animate-float">
@@ -282,10 +282,9 @@ export default function DashboardPage() {
           <Tooltip label={t('admin.addNewCar')}>
             <Button
               leftSection={<IconPlus size={16} />}
-              variant="gradient"
-              gradient={{ from: 'teal.7', to: 'teal.5' }}
+              variant="filled"
+              color="teal"
               onClick={() => navigate('/admin/cars')}
-              className="animate-shimmer"
               style={{ transition: 'transform 0.2s' }}
             >
               {t('admin.addNewCar')}
