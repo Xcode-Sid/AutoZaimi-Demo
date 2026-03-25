@@ -207,6 +207,12 @@ export default function DashboardPage() {
 
   const recentBookings = bookings.slice(0, 5);
 
+  const cashTotal = bookings.reduce((acc, b) => acc + (b.paymentMethod === 'cash' ? b.total : 0), 0);
+  const cardTotal = bookings.reduce((acc, b) => acc + (b.paymentMethod === 'card' ? b.total : 0), 0);
+  const paymentsTotal = cashTotal + cardTotal;
+  const cashPct = paymentsTotal ? Math.round((cashTotal / paymentsTotal) * 100) : 0;
+  const cardPct = paymentsTotal ? 100 - cashPct : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -305,6 +311,57 @@ export default function DashboardPage() {
             })}
           </SimpleGrid>
         </StaggerContainer>
+
+        {/* Payment split */}
+        <AnimatedSection delay={0.22}>
+          <Paper className="glass-card" p="lg" radius="lg">
+            <Group justify="space-between" mb="md" wrap="wrap">
+              <Text fw={600}>{t('admin.paymentSplitTitle')}</Text>
+              <Text size="xs" c="dimmed">
+                {t('admin.paymentSplitTotal')}{' '}
+                <Text component="span" fw={700} c="teal">
+                  €<AnimatedNumber target={paymentsTotal} />
+                </Text>
+              </Text>
+            </Group>
+
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
+              <Box>
+                <Group justify="space-between" mb={6}>
+                  <Group gap={8}>
+                    <Badge variant="light" color="teal">
+                      {t('admin.paymentSplitCard')}
+                    </Badge>
+                    <Text size="xs" c="dimmed">{cardPct}%</Text>
+                  </Group>
+                  <Text fw={800}>
+                    €<AnimatedNumber target={cardTotal} />
+                  </Text>
+                </Group>
+                <Progress.Root size={14} radius="xl">
+                  <Progress.Section value={paymentsTotal ? (cardTotal / paymentsTotal) * 100 : 0} color="teal" />
+                </Progress.Root>
+              </Box>
+
+              <Box>
+                <Group justify="space-between" mb={6}>
+                  <Group gap={8}>
+                    <Badge variant="light" color="gray">
+                      {t('admin.paymentSplitCash')}
+                    </Badge>
+                    <Text size="xs" c="dimmed">{cashPct}%</Text>
+                  </Group>
+                  <Text fw={800}>
+                    €<AnimatedNumber target={cashTotal} />
+                  </Text>
+                </Group>
+                <Progress.Root size={14} radius="xl">
+                  <Progress.Section value={paymentsTotal ? (cashTotal / paymentsTotal) * 100 : 0} color="gray" />
+                </Progress.Root>
+              </Box>
+            </SimpleGrid>
+          </Paper>
+        </AnimatedSection>
 
         {/* Quick Actions */}
         <AnimatedSection delay={0.3}>

@@ -21,6 +21,7 @@ import { notifications } from '@mantine/notifications';
 import { motion } from 'framer-motion';
 import { vehicles as initialVehicles, type Vehicle } from '../../data/vehicles';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '../../components/common/AnimatedSection';
+import { VehicleDetailView } from '../../components/vehicle/VehicleDetailView';
 
 const statusColors: Record<string, string> = {
   available: 'green',
@@ -43,6 +44,7 @@ export default function CarsPage() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCar, setEditingCar] = useState<Vehicle | null>(null);
+  const [previewCarId, setPreviewCarId] = useState<number | null>(null);
 
   const form = useForm({
     initialValues: {
@@ -50,7 +52,6 @@ export default function CarsPage() {
       year: 2024,
       category: 'Ekonomike' as Vehicle['category'],
       price: 0,
-      city: 'Tiranë',
       status: 'available' as Vehicle['status'],
       description: '',
       image: '',
@@ -77,7 +78,6 @@ export default function CarsPage() {
       year: car.year,
       category: car.category,
       price: car.price,
-      city: car.city,
       status: car.status,
       description: car.description,
       image: car.image,
@@ -218,7 +218,13 @@ export default function CarsPage() {
                     </Table.Td>
                     <Table.Td>
                       <Group gap={4}>
-                        <ActionIcon variant="subtle" color="blue" size="sm">
+                        <ActionIcon
+                          variant="subtle"
+                          color="blue"
+                          size="sm"
+                          aria-label={t('admin.previewVehicle')}
+                          onClick={() => setPreviewCarId(car.id)}
+                        >
                           <IconEye size={16} />
                         </ActionIcon>
                         <ActionIcon
@@ -286,6 +292,30 @@ export default function CarsPage() {
               {t('admin.saveCar')}
             </Button>
           </Stack>
+        </Modal>
+
+        <Modal
+          opened={previewCarId !== null}
+          onClose={() => setPreviewCarId(null)}
+          title={t('admin.previewVehicle')}
+          size="xl"
+          centered
+          radius="xl"
+          overlayProps={{ backgroundOpacity: 0.6, blur: 4 }}
+          transitionProps={{ transition: 'pop', duration: 180 }}
+          styles={{
+            body: { padding: 0 },
+          }}
+        >
+          {previewCarId !== null && (
+            <div style={{ maxHeight: '75vh', overflow: 'auto' }}>
+              <VehicleDetailView
+                vehicleId={previewCarId}
+                showBreadcrumbs={false}
+                containerized={false}
+              />
+            </div>
+          )}
         </Modal>
       </Stack>
     </motion.div>

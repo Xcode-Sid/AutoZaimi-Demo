@@ -9,7 +9,7 @@ import {
   Box,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconUser, IconMail, IconPhone, IconMapPin, IconBuilding } from '@tabler/icons-react';
+import { IconUser, IconMail, IconPhone, IconMapPin } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { motion } from 'framer-motion';
@@ -27,7 +27,6 @@ export default function ProfilePage() {
       email: user?.email || '',
       phone: user?.phone || '',
       address: user?.address || '',
-      city: user?.city || '',
     },
   });
 
@@ -106,11 +105,6 @@ export default function ProfilePage() {
                         label={t('account.address')}
                         leftSection={<IconMapPin size={16} />}
                         {...form.getInputProps('address')}
-                      />
-                      <TextInput
-                        label={t('account.city')}
-                        leftSection={<IconBuilding size={16} />}
-                        {...form.getInputProps('city')}
                       />
                     </SimpleGrid>
                   </StaggerItem>

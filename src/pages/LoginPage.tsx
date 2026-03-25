@@ -46,7 +46,7 @@ export default function LoginPage() {
       const loggedInUser = login(email, password);
       if (loggedInUser) {
         notifications.show({ message: t('login.success'), color: 'teal' });
-        navigate(loggedInUser.role === 'admin' ? '/admin' : '/');
+        navigate(loggedInUser.role === 'admin' ? '/admin' : '/account', { replace: true });
       } else {
         setError(t('login.error'));
       }
@@ -58,7 +58,7 @@ export default function LoginPage() {
     const u = login('user@autozaimi.al', 'user123');
     if (u) {
       notifications.show({ message: `${t('login.success')} (${provider})`, color: 'teal' });
-      navigate(u.role === 'admin' ? '/admin' : '/');
+      navigate(u.role === 'admin' ? '/admin' : '/account', { replace: true });
     }
   };
 

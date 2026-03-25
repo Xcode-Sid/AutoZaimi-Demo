@@ -18,7 +18,7 @@ import {
   Select,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconEye, IconPencil, IconCalendar } from '@tabler/icons-react';
+import { IconEye, IconPencil, IconCalendar, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import { users, type User } from '../../data/users';
@@ -41,6 +41,9 @@ export default function CustomersPage() {
   const { getUserBookings } = useBookings();
 
   const customerUsers = useMemo(() => users.filter((u) => u.role === 'user'), []);
+
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | null>(null);
 
   const [adsOpen, setAdsOpen] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -75,11 +78,55 @@ export default function CustomersPage() {
 
   const detailVehicle = detailBooking ? vehicles.find((v) => v.id === detailBooking.vehicleId) : undefined;
 
+  const filteredUsers = customerUsers.filter((u) => {
+    const q = search.trim().toLowerCase();
+    if (q) {
+      const hay = `${u.firstName} ${u.lastName} ${u.email} ${u.phone ?? ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (statusFilter) {
+      const st = (u.customerStatus ?? 'active') as 'active' | 'inactive';
+      if (st !== statusFilter) return false;
+    }
+    return true;
+  });
+
   return (
     <Stack gap="xl" className="animate-fade-in">
       <Title order={2} fw={700}>
         {t('admin.manageCustomers')}
       </Title>
+
+      <Group wrap="wrap" align="end">
+        <TextInput
+          placeholder={t('admin.filterSearchUsers')}
+          leftSection={<IconSearch size={16} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          style={{ flex: 1, minWidth: 240, maxWidth: 360 }}
+        />
+        <Select
+          placeholder={t('admin.customerStatus')}
+          data={[
+            { value: 'active', label: t('admin.active') },
+            { value: 'inactive', label: t('admin.inactive') },
+          ]}
+          value={statusFilter}
+          onChange={(v) => setStatusFilter((v as 'active' | 'inactive' | null) ?? null)}
+          clearable
+          w={200}
+        />
+        <Button
+          variant="subtle"
+          color="gray"
+          onClick={() => {
+            setSearch('');
+            setStatusFilter(null);
+          }}
+        >
+          {t('admin.filtersReset')}
+        </Button>
+      </Group>
 
       <Table.ScrollContainer minWidth={700}>
         <Table striped highlightOnHover>
@@ -95,7 +142,7 @@ export default function CustomersPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {customerUsers.map((c) => {
+            {filteredUsers.map((c) => {
               const count = getUserBookings(c.id).length;
               const st = c.customerStatus ?? 'active';
               return (
