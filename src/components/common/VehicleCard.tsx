@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../../contexts/FavoritesContext';
 import type { Vehicle } from '../../data/vehicles';
-import { hourlyRateFromDaily } from '../../utils/rentalPricing';
 
 const categoryColors: Record<string, string> = {
   Luksoze: 'yellow',
@@ -20,27 +19,19 @@ const statusDotClass: Record<string, string> = {
   unavailable: 'status-dot-unavailable',
 };
 
-export type FleetPriceEmphasis = 'all' | 'day' | 'hour';
-
 interface Props {
   vehicle: Vehicle;
   index?: number;
-  /** Fleet filter: which rate to show first on the card badge */
-  priceEmphasis?: FleetPriceEmphasis;
 }
 
-export function VehicleCard({ vehicle, index = 0, priceEmphasis = 'all' }: Props) {
+export function VehicleCard({ vehicle, index = 0 }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const fav = isFavorite(vehicle.id);
-  const hourly = hourlyRateFromDaily(vehicle.price);
-  const dayPart = `€${vehicle.price}/${t('vehicle.perDay')}`;
-  const hourPart = `€${hourly}/${t('vehicle.perHour')}`;
-  const priceBadgeText =
-    priceEmphasis === 'hour' ? `${hourPart} · ${dayPart}` : `${dayPart} · ${hourPart}`;
+  const priceBadgeText = `€${vehicle.price}/${t('vehicle.perDay')}`;
 
   return (
     <motion.div

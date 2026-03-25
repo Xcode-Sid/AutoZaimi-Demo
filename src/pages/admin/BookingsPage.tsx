@@ -25,10 +25,9 @@ import { users } from '../../data/users';
 import type { Booking } from '../../data/bookings';
 
 const statusColors: Record<string, string> = {
-  confirmed: 'green',
-  pending: 'yellow',
-  completed: 'gray',
-  cancelled: 'red',
+  accepted: 'green',
+  refused: 'red',
+  finished: 'gray',
 };
 
 export default function AdminBookingsPage() {
@@ -38,7 +37,6 @@ export default function AdminBookingsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<typeof bookings[number]['status'] | null>(null);
   const [paymentFilter, setPaymentFilter] = useState<'cash' | 'card' | null>(null);
-  const [rentalTypeFilter, setRentalTypeFilter] = useState<'day' | 'hour' | null>(null);
 
   const liveBooking = selected ? bookings.find((b) => b.id === selected.id) ?? selected : null;
   const selectedVehicle = liveBooking ? vehicles.find((v) => v.id === liveBooking.vehicleId) : undefined;
@@ -52,7 +50,6 @@ export default function AdminBookingsPage() {
     }
     if (statusFilter && b.status !== statusFilter) return false;
     if (paymentFilter && b.paymentMethod !== paymentFilter) return false;
-    if (rentalTypeFilter && b.rentalMode !== rentalTypeFilter) return false;
     return true;
   });
 
@@ -72,10 +69,9 @@ export default function AdminBookingsPage() {
         <Select
           placeholder={t('admin.status')}
           data={[
-            { value: 'confirmed', label: t('account.confirmed') },
-            { value: 'pending', label: t('account.pending') },
-            { value: 'completed', label: t('account.completed') },
-            { value: 'cancelled', label: t('account.cancelled') },
+            { value: 'accepted', label: t('account.accepted') },
+            { value: 'refused', label: t('account.refused') },
+            { value: 'finished', label: t('account.finished') },
           ]}
           value={statusFilter}
           onChange={(v) => setStatusFilter((v as typeof bookings[number]['status'] | null) ?? null)}
@@ -93,17 +89,6 @@ export default function AdminBookingsPage() {
           clearable
           w={190}
         />
-        <Select
-          placeholder={t('account.rentalType')}
-          data={[
-            { value: 'day', label: t('account.typeDay') },
-            { value: 'hour', label: t('account.typeHour') },
-          ]}
-          value={rentalTypeFilter}
-          onChange={(v) => setRentalTypeFilter((v as 'day' | 'hour' | null) ?? null)}
-          clearable
-          w={190}
-        />
         <Button
           variant="subtle"
           color="gray"
@@ -111,7 +96,6 @@ export default function AdminBookingsPage() {
             setSearch('');
             setStatusFilter(null);
             setPaymentFilter(null);
-            setRentalTypeFilter(null);
           }}
         >
           {t('admin.filtersReset')}
@@ -127,7 +111,6 @@ export default function AdminBookingsPage() {
               <Table.Th>{t('admin.vehicle')}</Table.Th>
               <Table.Th>{t('admin.paymentMethod')}</Table.Th>
               <Table.Th>{t('admin.dates')}</Table.Th>
-              <Table.Th>{t('account.rentalType')}</Table.Th>
               <Table.Th>{t('admin.total')}</Table.Th>
               <Table.Th>{t('admin.status')}</Table.Th>
               <Table.Th>{t('admin.carActions')}</Table.Th>
@@ -157,11 +140,6 @@ export default function AdminBookingsPage() {
                   <Text size="sm">
                     {formatBookingPeriod(b, t)}
                   </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge variant="light" color={b.rentalMode === 'hour' ? 'blue' : 'teal'} size="sm">
-                    {b.rentalMode === 'hour' ? t('account.typeHour') : t('account.typeDay')}
-                  </Badge>
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm" fw={600}>€{b.total.toLocaleString()}</Text>
@@ -219,10 +197,9 @@ export default function AdminBookingsPage() {
                       value={liveBooking.status}
                       onChange={(v) => v && updateBookingStatus(liveBooking.id, v as typeof liveBooking.status)}
                       data={[
-                        { value: 'confirmed', label: t('account.confirmed') },
-                        { value: 'pending', label: t('account.pending') },
-                        { value: 'completed', label: t('account.completed') },
-                        { value: 'cancelled', label: t('account.cancelled') },
+                        { value: 'accepted', label: t('account.accepted') },
+                        { value: 'refused', label: t('account.refused') },
+                        { value: 'finished', label: t('account.finished') },
                       ]}
                     />
                     <Button variant="light" color="gray" onClick={() => setSelected(null)} radius="xl" fullWidth>

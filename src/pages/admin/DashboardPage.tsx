@@ -122,10 +122,9 @@ const kpiSparklines: Record<string, { data: { x: string; y: number }[]; color: s
 };
 
 const statusColors: Record<string, string> = {
-  confirmed: 'green',
-  pending: 'yellow',
-  completed: 'gray',
-  cancelled: 'red',
+  accepted: 'green',
+  refused: 'red',
+  finished: 'gray',
 };
 
 export default function DashboardPage() {
@@ -581,9 +580,9 @@ export default function DashboardPage() {
                             color={statusColors[b.status]}
                             variant="light"
                             size="sm"
-                            className={b.status === 'pending' ? 'badge-pulse' : ''}
+                            className={b.status === 'accepted' ? 'badge-pulse' : ''}
                           >
-                            {b.status}
+                            {t(`account.${b.status}`)}
                           </Badge>
                         </Table.Td>
                       </motion.tr>

@@ -1,5 +1,3 @@
-export type RentalMode = 'day' | 'hour';
-
 export interface Booking {
   id: string;
   ref: string;
@@ -10,13 +8,8 @@ export interface Booking {
   startDate: string;
   endDate?: string;
   total: number;
-  status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
+  status: 'accepted' | 'refused' | 'finished';
   addons?: string[];
-  /** Defaults to day when omitted (legacy rows). */
-  rentalMode?: RentalMode;
-  billableHours?: number;
-  hourStartTime?: string;
-  hourEndTime?: string;
 }
 
 export const bookings: Booking[] = [
@@ -30,7 +23,7 @@ export const bookings: Booking[] = [
     startDate: '2026-03-15',
     endDate: '2026-03-20',
     total: 570,
-    status: 'completed',
+    status: 'finished',
   },
   {
     id: 'b2',
@@ -42,7 +35,7 @@ export const bookings: Booking[] = [
     startDate: '2026-03-02',
     endDate: '2026-03-08',
     total: 450,
-    status: 'confirmed',
+    status: 'accepted',
   },
   {
     id: 'b3',
@@ -54,7 +47,7 @@ export const bookings: Booking[] = [
     startDate: '2026-03-28',
     endDate: '2026-04-02',
     total: 270,
-    status: 'pending',
+    status: 'accepted',
   },
   {
     id: 'b4',
@@ -66,7 +59,7 @@ export const bookings: Booking[] = [
     startDate: '2026-02-10',
     endDate: '2026-02-12',
     total: 360,
-    status: 'cancelled',
+    status: 'refused',
   },
   {
     id: 'b5',
@@ -76,12 +69,8 @@ export const bookings: Booking[] = [
     vehicleName: 'Tesla Model 3',
     paymentMethod: 'card',
     startDate: '2026-04-05',
-    endDate: '2026-04-05',
-    total: 60,
-    status: 'confirmed',
-    rentalMode: 'hour',
-    billableHours: 5,
-    hourStartTime: '10:00',
-    hourEndTime: '15:00',
+    endDate: '2026-04-06',
+    total: 150,
+    status: 'accepted',
   },
 ];

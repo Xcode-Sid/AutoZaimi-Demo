@@ -30,10 +30,9 @@ import { vehicles } from '../../data/vehicles';
 import type { Booking } from '../../data/bookings';
 
 const statusColors: Record<string, string> = {
-  confirmed: 'green',
-  pending: 'yellow',
-  completed: 'gray',
-  cancelled: 'red',
+  accepted: 'green',
+  refused: 'red',
+  finished: 'gray',
 };
 
 export default function CustomersPage() {
