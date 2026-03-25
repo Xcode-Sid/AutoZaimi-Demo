@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { PublicLayout } from './layouts/PublicLayout';
 import { AccountLayout } from './layouts/AccountLayout';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -60,6 +60,7 @@ export default function App() {
 
         <Route element={<UserAccountRoute />}>
           <Route element={<AccountLayout />}>
+            <Route path="/account" element={<Navigate to="/account/profile" replace />} />
             <Route path="/account/profile" element={<ProfilePage />} />
             <Route path="/account/saved" element={<SavedCarsPage />} />
             <Route path="/account/bookings" element={<BookingsPage />} />

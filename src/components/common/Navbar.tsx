@@ -274,20 +274,12 @@ export function Navbar() {
                 ) : (
                   <>
                     <Menu.Label>{t('nav.userPanel')}</Menu.Label>
-                    <Text size="xs" c="dimmed" px="sm" pb={4}>
-                      {user?.firstName} {user?.lastName}
-                    </Text>
-                    <Menu.Item leftSection={<IconUser size={16} />} onClick={() => navigate('/account/profile')}>
-                      {t('nav.profile')}
-                    </Menu.Item>
-                    <Menu.Item leftSection={<IconDeviceFloppy size={16} />} onClick={() => navigate('/account/saved')}>
-                      {t('nav.savedCars')}
-                    </Menu.Item>
-                    <Menu.Item leftSection={<IconCalendar size={16} />} onClick={() => navigate('/account/bookings')}>
-                      {t('nav.myBookings')}
-                    </Menu.Item>
-                    <Menu.Item leftSection={<IconSettings size={16} />} onClick={() => navigate('/account/settings')}>
-                      {t('nav.settings')}
+                    <Menu.Item
+                      leftSection={<IconUser size={16} />}
+                      onClick={() => navigate('/account')}
+                      color="teal"
+                    >
+                      {t('nav.userPanel')}
                     </Menu.Item>
                     <Menu.Divider />
                     <Menu.Item leftSection={<IconLogout size={16} />} onClick={handleLogout} color="red">
@@ -378,22 +370,30 @@ export function Navbar() {
                 <Text size="xs" c="dimmed" fw={600} tt="uppercase" style={{ letterSpacing: '0.06em' }}>
                   {t('nav.userPanel')}
                 </Text>
-                <Text size="sm" c="dimmed" mb="xs">
-                  {user?.firstName} {user?.lastName}
-                </Text>
-                <Button variant="subtle" fullWidth justify="start" leftSection={<IconUser size={16} />} onClick={() => { navigate('/account/profile'); setDrawerOpen(false); }}>
-                  {t('nav.profile')}
+                <Button
+                  variant="light"
+                  color="teal"
+                  fullWidth
+                  justify="start"
+                  leftSection={<IconUser size={16} />}
+                  onClick={() => {
+                    navigate('/account');
+                    setDrawerOpen(false);
+                  }}
+                >
+                  {t('nav.userPanel')}
                 </Button>
-                <Button variant="subtle" fullWidth justify="start" leftSection={<IconDeviceFloppy size={16} />} onClick={() => { navigate('/account/saved'); setDrawerOpen(false); }}>
-                  {t('nav.savedCars')}
-                </Button>
-                <Button variant="subtle" fullWidth justify="start" leftSection={<IconCalendar size={16} />} onClick={() => { navigate('/account/bookings'); setDrawerOpen(false); }}>
-                  {t('nav.myBookings')}
-                </Button>
-                <Button variant="subtle" fullWidth justify="start" leftSection={<IconSettings size={16} />} onClick={() => { navigate('/account/settings'); setDrawerOpen(false); }}>
-                  {t('nav.settings')}
-                </Button>
-                <Button variant="subtle" color="red" fullWidth justify="start" leftSection={<IconLogout size={16} />} onClick={() => { handleLogout(); setDrawerOpen(false); }}>
+                <Button
+                  variant="subtle"
+                  color="red"
+                  fullWidth
+                  justify="start"
+                  leftSection={<IconLogout size={16} />}
+                  onClick={() => {
+                    handleLogout();
+                    setDrawerOpen(false);
+                  }}
+                >
                   {t('nav.logout')}
                 </Button>
               </>

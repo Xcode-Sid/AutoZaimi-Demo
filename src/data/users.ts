@@ -6,7 +6,6 @@ export interface User {
   password: string;
   phone: string;
   address: string;
-  city: string;
   role: 'admin' | 'user';
   avatar: string;
   savedVehicles: number[];
@@ -23,7 +22,6 @@ export const users: User[] = [
     password: 'admin123',
     phone: '+355 44 123 456',
     address: 'Rruga Durrësit 100',
-    city: 'Tiranë',
     role: 'admin',
     avatar: 'AA',
     savedVehicles: [],
@@ -36,7 +34,6 @@ export const users: User[] = [
     password: 'user123',
     phone: '+355 69 123 4567',
     address: 'Rruga Myslym Shyri',
-    city: 'Tiranë',
     role: 'user',
     avatar: 'AH',
     savedVehicles: [1, 3, 8],
@@ -49,7 +46,6 @@ export const users: User[] = [
     password: 'demo123',
     phone: '+355 69 234 5678',
     address: 'Rruga e Kavajës',
-    city: 'Tiranë',
     role: 'user',
     avatar: 'EK',
     savedVehicles: [2],
@@ -62,7 +58,6 @@ export const users: User[] = [
     password: 'demo123',
     phone: '+355 69 345 6789',
     address: 'Laprakë',
-    city: 'Tiranë',
     role: 'user',
     avatar: 'DL',
     savedVehicles: [],
@@ -75,7 +70,6 @@ export const users: User[] = [
     password: 'demo123',
     phone: '+355 69 456 7890',
     address: 'Kombinat',
-    city: 'Tiranë',
     role: 'user',
     avatar: 'BT',
     savedVehicles: [4],
@@ -88,7 +82,6 @@ export const users: User[] = [
     password: 'demo123',
     phone: '+355 69 567 8901',
     address: 'Fushë Krujë',
-    city: 'Krujë',
     role: 'user',
     avatar: 'GM',
     savedVehicles: [],

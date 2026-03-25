@@ -116,7 +116,7 @@ export function TestimonialsCarousel() {
                               c={isDark ? 'dimmed' : undefined}
                               style={!isDark ? { color: '#868e96' } : undefined}
                             >
-                              {item.city}
+                              {item.authorName}
                             </Text>
                           </div>
                         </Group>

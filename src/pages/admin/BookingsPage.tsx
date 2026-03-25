@@ -11,6 +11,7 @@ import {
   Modal,
   Button,
   ActionIcon,
+  TextInput,
 } from '@mantine/core';
 import { IconEye } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -34,15 +35,88 @@ export default function AdminBookingsPage() {
   const { t } = useTranslation();
   const { bookings, updateBookingStatus } = useBookings();
   const [selected, setSelected] = useState<Booking | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<typeof bookings[number]['status'] | null>(null);
+  const [paymentFilter, setPaymentFilter] = useState<'cash' | 'card' | null>(null);
+  const [rentalTypeFilter, setRentalTypeFilter] = useState<'day' | 'hour' | null>(null);
 
   const liveBooking = selected ? bookings.find((b) => b.id === selected.id) ?? selected : null;
   const selectedVehicle = liveBooking ? vehicles.find((v) => v.id === liveBooking.vehicleId) : undefined;
+
+  const filteredBookings = bookings.filter((b) => {
+    const q = search.trim().toLowerCase();
+    if (q) {
+      const userName = displayNameForUserId(b.userId, t).toLowerCase();
+      const hay = `${b.ref} ${b.vehicleName} ${userName}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (statusFilter && b.status !== statusFilter) return false;
+    if (paymentFilter && b.paymentMethod !== paymentFilter) return false;
+    if (rentalTypeFilter && b.rentalMode !== rentalTypeFilter) return false;
+    return true;
+  });
 
   return (
     <Stack gap="xl" className="animate-fade-in">
       <Title order={2} fw={700}>
         {t('admin.manageBookings')}
       </Title>
+
+      <Group wrap="wrap" align="end">
+        <TextInput
+          placeholder={t('admin.filterSearchBookings')}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          style={{ flex: 1, minWidth: 260, maxWidth: 420 }}
+        />
+        <Select
+          placeholder={t('admin.status')}
+          data={[
+            { value: 'confirmed', label: t('account.confirmed') },
+            { value: 'pending', label: t('account.pending') },
+            { value: 'completed', label: t('account.completed') },
+            { value: 'cancelled', label: t('account.cancelled') },
+          ]}
+          value={statusFilter}
+          onChange={(v) => setStatusFilter((v as typeof bookings[number]['status'] | null) ?? null)}
+          clearable
+          w={190}
+        />
+        <Select
+          placeholder={t('admin.paymentMethod')}
+          data={[
+            { value: 'card', label: t('admin.paymentCard') },
+            { value: 'cash', label: t('admin.paymentCash') },
+          ]}
+          value={paymentFilter}
+          onChange={(v) => setPaymentFilter((v as 'cash' | 'card' | null) ?? null)}
+          clearable
+          w={190}
+        />
+        <Select
+          placeholder={t('account.rentalType')}
+          data={[
+            { value: 'day', label: t('account.typeDay') },
+            { value: 'hour', label: t('account.typeHour') },
+          ]}
+          value={rentalTypeFilter}
+          onChange={(v) => setRentalTypeFilter((v as 'day' | 'hour' | null) ?? null)}
+          clearable
+          w={190}
+        />
+        <Button
+          variant="subtle"
+          color="gray"
+          onClick={() => {
+            setSearch('');
+            setStatusFilter(null);
+            setPaymentFilter(null);
+            setRentalTypeFilter(null);
+          }}
+        >
+          {t('admin.filtersReset')}
+        </Button>
+      </Group>
 
       <Table.ScrollContainer minWidth={1000}>
         <Table striped highlightOnHover>
@@ -60,7 +134,7 @@ export default function AdminBookingsPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {bookings.map((b) => (
+            {filteredBookings.map((b) => (
               <Table.Tr key={b.id}>
                 <Table.Td>
                   <Text size="sm" fw={500}>{b.ref}</Text>

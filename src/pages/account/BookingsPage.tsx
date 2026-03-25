@@ -12,8 +12,10 @@ import {
   ThemeIcon,
   Modal,
   Button,
+  TextInput,
+  Select,
 } from '@mantine/core';
-import { IconCalendar, IconCar, IconChevronRight } from '@tabler/icons-react';
+import { IconCalendar, IconCar, IconChevronRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -59,10 +61,26 @@ export default function BookingsPage() {
   const { user } = useAuth();
   const { getUserBookings } = useBookings();
   const [selected, setSelected] = useState<Booking | null>(null);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<Booking['status'] | null>(null);
+  const [paymentFilter, setPaymentFilter] = useState<'cash' | 'card' | null>(null);
+  const [rentalTypeFilter, setRentalTypeFilter] = useState<'day' | 'hour' | null>(null);
 
   const userBookings = user ? getUserBookings(user.id) : [];
 
   const selectedVehicle = selected ? vehicles.find((v) => v.id === selected.vehicleId) : undefined;
+
+  const filteredBookings = userBookings.filter((b) => {
+    const q = search.trim().toLowerCase();
+    if (q) {
+      const hay = `${b.ref} ${b.vehicleName}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (statusFilter && b.status !== statusFilter) return false;
+    if (paymentFilter && b.paymentMethod !== paymentFilter) return false;
+    if (rentalTypeFilter && b.rentalMode !== rentalTypeFilter) return false;
+    return true;
+  });
 
   return (
     <motion.div
@@ -104,6 +122,63 @@ export default function BookingsPage() {
 
         {userBookings.length > 0 ? (
           <AnimatedSection delay={0.08}>
+            <Group wrap="wrap" align="end" mb="sm">
+              <TextInput
+                placeholder={t('account.filterSearchBookings')}
+                leftSection={<IconSearch size={16} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                style={{ flex: 1, minWidth: 240, maxWidth: 420 }}
+              />
+              <Select
+                placeholder={t('account.status')}
+                data={[
+                  { value: 'confirmed', label: t('account.confirmed') },
+                  { value: 'pending', label: t('account.pending') },
+                  { value: 'completed', label: t('account.completed') },
+                  { value: 'cancelled', label: t('account.cancelled') },
+                ]}
+                value={statusFilter}
+                onChange={(v) => setStatusFilter((v as Booking['status'] | null) ?? null)}
+                clearable
+                w={190}
+              />
+              <Select
+                placeholder={t('account.filterPayment')}
+                data={[
+                  { value: 'card', label: t('admin.paymentCard') },
+                  { value: 'cash', label: t('admin.paymentCash') },
+                ]}
+                value={paymentFilter}
+                onChange={(v) => setPaymentFilter((v as 'cash' | 'card' | null) ?? null)}
+                clearable
+                w={190}
+              />
+              <Select
+                placeholder={t('account.rentalType')}
+                data={[
+                  { value: 'day', label: t('account.typeDay') },
+                  { value: 'hour', label: t('account.typeHour') },
+                ]}
+                value={rentalTypeFilter}
+                onChange={(v) => setRentalTypeFilter((v as 'day' | 'hour' | null) ?? null)}
+                clearable
+                w={190}
+              />
+              <Button
+                variant="subtle"
+                color="gray"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter(null);
+                  setPaymentFilter(null);
+                  setRentalTypeFilter(null);
+                }}
+              >
+                {t('account.filtersReset')}
+              </Button>
+            </Group>
+
             <Text size="xs" c="dimmed" mb="xs" style={{ letterSpacing: '0.02em' }}>
               {t('account.clickRowForDetails')}
             </Text>
@@ -142,7 +217,7 @@ export default function BookingsPage() {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {userBookings.map((b, i) => {
+                    {filteredBookings.map((b, i) => {
                       const vehicle = vehicles.find((v) => v.id === b.vehicleId);
                       const cancelled = b.status === 'cancelled';
                       return (

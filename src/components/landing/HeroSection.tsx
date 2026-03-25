@@ -5,7 +5,6 @@ import {
   Text,
   Group,
   Button,
-  Select,
   Box,
   Stack,
   Badge,
@@ -63,14 +62,6 @@ export function HeroSection() {
   });
   const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
 
-  const locations = [
-    { value: 'tirane', label: t('locations.tirane') },
-    { value: 'durres', label: t('locations.durres') },
-    { value: 'vlore', label: t('locations.vlore') },
-    { value: 'sarande', label: t('locations.sarande') },
-    { value: 'shkoder', label: t('locations.shkoder') },
-  ];
-
   return (
     <Box
       ref={heroRef}
@@ -78,9 +69,8 @@ export function HeroSection() {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        minHeight: '90vh',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         background: isDark ? undefined : '#f8f9fa',
       }}
     >
@@ -237,13 +227,6 @@ export function HeroSection() {
                           radius="lg"
                           size="md"
                         />
-                        <Select
-                          label={t('hero.pickupLocation')}
-                          placeholder={t('hero.pickupLocation')}
-                          data={locations}
-                          radius="lg"
-                          size="md"
-                        />
                       </SimpleGrid>
                     </motion.div>
                   ) : (
@@ -262,13 +245,6 @@ export function HeroSection() {
                             value={heroHourDate}
                             onChange={setHeroHourDate}
                             minDate={new Date().toISOString().split('T')[0]}
-                            radius="lg"
-                            size="md"
-                          />
-                          <Select
-                            label={t('hero.pickupLocation')}
-                            placeholder={t('hero.pickupLocation')}
-                            data={locations}
                             radius="lg"
                             size="md"
                           />

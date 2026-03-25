@@ -1,5 +1,6 @@
-import { Title, SimpleGrid, Stack, Box, Text, Group } from '@mantine/core';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { useState } from 'react';
+import { Title, SimpleGrid, Stack, Box, Text, Group, TextInput, Select, Button } from '@mantine/core';
+import { IconDeviceFloppy, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../../contexts/FavoritesContext';
@@ -12,6 +13,15 @@ export default function SavedCarsPage() {
   const { t } = useTranslation();
   const { favorites } = useFavorites();
   const savedVehicles = vehicles.filter((v) => favorites.includes(v.id));
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string | null>(null);
+
+  const filteredVehicles = savedVehicles.filter((v) => {
+    const q = search.trim().toLowerCase();
+    if (q && !v.name.toLowerCase().includes(q)) return false;
+    if (category && v.category !== category) return false;
+    return true;
+  });
 
   return (
     <motion.div
@@ -49,6 +59,39 @@ export default function SavedCarsPage() {
 
         {savedVehicles.length > 0 ? (
           <AnimatedSection delay={0.08}>
+            <Group wrap="wrap" align="end" mb="sm">
+              <TextInput
+                placeholder={t('account.filterSearchSaved')}
+                leftSection={<IconSearch size={16} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                style={{ flex: 1, minWidth: 240, maxWidth: 420 }}
+              />
+              <Select
+                placeholder={t('account.filterCategory')}
+                data={[
+                  { value: 'Luksoze', label: t('fleet.luxury') },
+                  { value: 'SUV', label: t('fleet.suv') },
+                  { value: 'Elektrike', label: t('fleet.electric') },
+                  { value: 'Ekonomike', label: t('fleet.economy') },
+                ]}
+                value={category}
+                onChange={setCategory}
+                clearable
+                w={190}
+              />
+              <Button
+                variant="subtle"
+                color="gray"
+                onClick={() => {
+                  setSearch('');
+                  setCategory(null);
+                }}
+              >
+                {t('account.filtersReset')}
+              </Button>
+            </Group>
+
             <Box
               className="glass-card card-gradient-border"
               p={{ base: 'md', sm: 'xl' }}
@@ -56,7 +99,7 @@ export default function SavedCarsPage() {
             >
               <StaggerContainer stagger={0.07}>
                 <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="lg">
-                  {savedVehicles.map((v, i) => (
+                  {filteredVehicles.map((v, i) => (
                     <StaggerItem key={v.id} scale>
                       <motion.div
                         initial={{ opacity: 0, y: 16 }}

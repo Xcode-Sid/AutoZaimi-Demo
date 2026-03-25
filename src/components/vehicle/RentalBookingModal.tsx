@@ -24,7 +24,6 @@ import {
   IconCalendar,
   IconSettings,
   IconShieldCheck,
-  IconMapPin2,
   IconBabyCarriage,
   IconCash,
   IconCreditCard,
@@ -89,22 +88,10 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
   const [hourStart, setHourStart] = useState('09:00');
   const [hourEnd, setHourEnd] = useState('17:00');
 
-  const [pickupLocation, setPickupLocation] = useState<string | null>(null);
-  const [sameLocation, setSameLocation] = useState(true);
-  const [returnLocation, setReturnLocation] = useState<string | null>(null);
-
   const [insurance, setInsurance] = useState(false);
   const [gps, setGps] = useState(false);
   const [childSeat, setChildSeat] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cash');
-
-  const locations = [
-    { value: 'tirane', label: t('locations.tirane') },
-    { value: 'durres', label: t('locations.durres') },
-    { value: 'vlore', label: t('locations.vlore') },
-    { value: 'sarande', label: t('locations.sarande') },
-    { value: 'shkoder', label: t('locations.shkoder') },
-  ];
 
   const days = useMemo(() => {
     if (dateRange[0] && dateRange[1]) {
@@ -161,8 +148,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
   ]);
 
   const canContinue =
-    pickupLocation &&
-    (sameLocation || returnLocation) &&
     (rentalMode === 'day'
       ? !!(dateRange[0] && dateRange[1] && days >= 1)
       : !!(hourDate && hours >= 1));
@@ -223,9 +208,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
     setHourDate(null);
     setHourStart('09:00');
     setHourEnd('17:00');
-    setPickupLocation(null);
-    setSameLocation(true);
-    setReturnLocation(null);
     setInsurance(false);
     setGps(false);
     setChildSeat(false);
@@ -386,37 +368,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                <Select
-                  label={t('rental.pickupLocation')}
-                  data={locations}
-                  value={pickupLocation}
-                  onChange={setPickupLocation}
-                  required
-                  radius="md"
-                  leftSection={<IconMapPin2 size={16} />}
-                />
-                <Switch
-                  label={t('rental.sameLocation')}
-                  checked={sameLocation}
-                  onChange={(e) => {
-                    setSameLocation(e.currentTarget.checked);
-                    if (e.currentTarget.checked) setReturnLocation(null);
-                  }}
-                  color="teal"
-                />
-                {!sameLocation && (
-                  <Select
-                    label={t('rental.returnLocation')}
-                    data={locations}
-                    value={returnLocation}
-                    onChange={setReturnLocation}
-                    required
-                    radius="md"
-                    leftSection={<IconMapPin2 size={16} />}
-                    className="animate-scale-in"
-                  />
-                )}
                 <Button
                   fullWidth
                   variant="filled"
@@ -481,7 +432,7 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                   <Group justify="space-between">
                     <Group gap="sm">
                       <ThemeIcon variant="light" color="blue" size="lg" radius="md">
-                        <IconMapPin2 size={20} />
+                        <IconShieldCheck size={20} />
                       </ThemeIcon>
                       <div>
                         <Text size="sm" fw={600}>{t('rental.gps')}</Text>

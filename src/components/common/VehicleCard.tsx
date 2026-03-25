@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Card, Image, Text, Group, Badge, Button, ActionIcon, Stack, Box, Divider, useMantineColorScheme } from '@mantine/core';
-import { IconDeviceFloppy, IconMapPin, IconUsers, IconManualGearbox, IconGasStation, IconStarFilled } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconUsers, IconManualGearbox, IconGasStation, IconStarFilled } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useFavorites } from '../../contexts/FavoritesContext';
@@ -142,11 +142,6 @@ export function VehicleCard({ vehicle, index = 0, priceEmphasis = 'all' }: Props
               {vehicle.name}
             </Text>
             <Group gap={6} mt={2}>
-              <IconMapPin size={13} color="var(--mantine-color-teal-6)" />
-              <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>
-                {vehicle.city}
-              </Text>
-              <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>·</Text>
               <Text size="xs" c={isDark ? 'dimmed' : undefined} style={!isDark ? { color: '#868e96' } : undefined}>
                 {vehicle.year}
               </Text>

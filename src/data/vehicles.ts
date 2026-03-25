@@ -14,7 +14,6 @@ export interface Vehicle {
   year: number;
   category: 'Luksoze' | 'SUV' | 'Elektrike' | 'Ekonomike';
   price: number;
-  city: string;
   status: 'available' | 'maintenance' | 'unavailable';
   description: string;
   image: string;
@@ -31,7 +30,6 @@ export const vehicles: Vehicle[] = [
     year: 2024,
     category: 'Luksoze',
     price: 150,
-    city: 'Tiranë',
     status: 'available',
     description:
       'Mercedes-Benz S-Class është ikona e luksit në botën e automobilave. Me teknologjinë më të fundit dhe komoditetin e pakrahasueshëm, kjo makinë ofron një eksperiencë drejtuese të jashtëzakonshme.',
@@ -51,7 +49,6 @@ export const vehicles: Vehicle[] = [
     year: 2023,
     category: 'SUV',
     price: 95,
-    city: 'Durrës',
     status: 'available',
     description:
       'BMW X5 kombinon luksin me aftësinë e lartë off-road. Me motorr të fuqishëm dhe teknologji të avancuar, është SUV-ja perfekte për familjen.',
@@ -71,7 +68,6 @@ export const vehicles: Vehicle[] = [
     year: 2024,
     category: 'Elektrike',
     price: 75,
-    city: 'Tiranë',
     status: 'available',
     description:
       'Tesla Model 3 është e ardhmja e automobilave elektrike. Me performancë të shkëlqyer, autonomi të gjatë dhe zero emetime, kjo makinë ofron drejtim inteligjent.',
@@ -91,7 +87,6 @@ export const vehicles: Vehicle[] = [
     year: 2022,
     category: 'Ekonomike',
     price: 45,
-    city: 'Vlorë',
     status: 'available',
     description:
       'Audi A4 ofron cilësi gjermane me çmim të arsyeshëm. Makina ideale për udhëtime të gjata me komoditet dhe eficencë karburanti.',
@@ -111,7 +106,6 @@ export const vehicles: Vehicle[] = [
     year: 2024,
     category: 'SUV',
     price: 180,
-    city: 'Tiranë',
     status: 'maintenance',
     description:
       'Range Rover Sport është SUV-ja premium që kombinon elegancën me fuqinë. Me kapacitet të jashtëzakonshëm off-road dhe brendësi luksoze.',
@@ -131,7 +125,6 @@ export const vehicles: Vehicle[] = [
     year: 2023,
     category: 'SUV',
     price: 120,
-    city: 'Sarandë',
     status: 'available',
     description:
       'Mercedes-Benz GLE kombinon komoditetin e klasës S me hapësirën e një SUV-je. Perfekte për pushime familjare në bregdetin shqiptar.',
@@ -151,7 +144,6 @@ export const vehicles: Vehicle[] = [
     year: 2023,
     category: 'Ekonomike',
     price: 35,
-    city: 'Shkodër',
     status: 'available',
     description:
       'Volkswagen Golf është makina më e popullarizuar në Europë. Efikase, e besueshme dhe argëtuese për drejtim. Çmimi ideal për buxhetin tuaj.',
@@ -171,7 +163,6 @@ export const vehicles: Vehicle[] = [
     year: 2024,
     category: 'Elektrike',
     price: 85,
-    city: 'Tiranë',
     status: 'available',
     description:
       'BMW i4 është Gran Coupe elektrik me performancë sportive. Kombinon ADN-në e BMW me teknologjinë elektrike të së ardhmes.',
@@ -191,7 +182,6 @@ export const vehicles: Vehicle[] = [
     year: 2023,
     category: 'Luksoze',
     price: 140,
-    city: 'Durrës',
     status: 'available',
     description:
       'Audi Q7 ofron hapësirë dhe komoditet premium me teknologji Quattro. SUV-ja luksoze perfekte për familje dhe udhëtime të gjata.',
@@ -211,7 +201,6 @@ export const vehicles: Vehicle[] = [
     year: 2023,
     category: 'Ekonomike',
     price: 40,
-    city: 'Vlorë',
     status: 'unavailable',
     description:
       'Toyota Camry është sedan i besueshëm dhe ekonomik. Me motorr hibrid dhe komoditet të lartë, kjo makinë ofron vlerën më të mirë për paranë.',
