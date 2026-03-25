@@ -18,17 +18,15 @@ import type { Booking } from '../../data/bookings';
 import { formatBookingPeriod } from '../../utils/bookingDisplay';
 
 export const bookingStatusColors: Record<string, string> = {
-  confirmed: 'teal',
-  pending: 'yellow',
-  completed: 'gray',
-  cancelled: 'red',
+  accepted: 'teal',
+  refused: 'red',
+  finished: 'gray',
 };
 
 export const bookingStatusKeys: Record<string, string> = {
-  confirmed: 'account.confirmed',
-  pending: 'account.pending',
-  completed: 'account.completed',
-  cancelled: 'account.cancelled',
+  accepted: 'account.accepted',
+  refused: 'account.refused',
+  finished: 'account.finished',
 };
 
 export function rentalDayCount(start: string, end?: string): number | null {
@@ -80,7 +78,6 @@ interface Props {
 export function BookingDetailContent({ booking, vehicleImageUrl, headerStatusSlot, footer }: Props) {
   const { t } = useTranslation();
   const days = rentalDayCount(booking.startDate, booking.endDate);
-  const hourBooking = booking.rentalMode === 'hour';
 
   return (
     <Box p={{ base: 'md', sm: 'xl' }}>
@@ -126,9 +123,7 @@ export function BookingDetailContent({ booking, vehicleImageUrl, headerStatusSlo
           <Text size="sm" c="dimmed">
             {t('account.rentalType')}
           </Text>
-          <Text size="sm" fw={600}>
-            {hourBooking ? t('account.typeHour') : t('account.typeDay')}
-          </Text>
+          <Text size="sm" fw={600}>{t('account.typeDay')}</Text>
         </Group>
         <Group justify="space-between">
           <Text size="sm" c="dimmed">
@@ -138,17 +133,7 @@ export function BookingDetailContent({ booking, vehicleImageUrl, headerStatusSlo
             {formatBookingPeriod(booking, t)}
           </Text>
         </Group>
-        {hourBooking && booking.billableHours != null && (
-          <Group justify="space-between">
-            <Text size="sm" c="dimmed">
-              {t('rental.duration')}
-            </Text>
-            <Text size="sm" fw={600}>
-              {t('rental.billableHours', { count: booking.billableHours })}
-            </Text>
-          </Group>
-        )}
-        {!hourBooking && days != null && (
+        {days != null && (
           <Group justify="space-between">
             <Text size="sm" c="dimmed">
               {t('rental.duration')}
@@ -175,9 +160,9 @@ export function BookingDetailContent({ booking, vehicleImageUrl, headerStatusSlo
           <Text
             size="lg"
             fw={800}
-            c={booking.status === 'cancelled' ? 'dimmed' : 'teal'}
+            c={booking.status === 'refused' ? 'dimmed' : 'teal'}
             style={{
-              textDecoration: booking.status === 'cancelled' ? 'line-through' : undefined,
+              textDecoration: booking.status === 'refused' ? 'line-through' : undefined,
             }}
           >
             €{booking.total.toLocaleString()}

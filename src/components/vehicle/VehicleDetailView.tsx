@@ -38,7 +38,6 @@ import { reviews as allReviews } from '../../data/reviews';
 import { ImageGallery } from './ImageGallery';
 import { RentalBookingModal } from './RentalBookingModal';
 import { VehicleCard } from '../common/VehicleCard';
-import { hourlyRateFromDaily } from '../../utils/rentalPricing';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '../common/AnimatedSection';
 
 export function VehicleDetailView({
@@ -85,7 +84,7 @@ export function VehicleDetailView({
     pct: vehicleReviews.length ? (vehicleReviews.filter((r) => r.rating === star).length / vehicleReviews.length) * 100 : 0,
   }));
 
-  const priceDisplay = `€${vehicle.price}/${t('vehicle.perDay')} · €${hourlyRateFromDaily(vehicle.price)}/${t('vehicle.perHour')}`;
+  const priceDisplay = `€${vehicle.price}/${t('vehicle.perDay')}`;
 
   const specRows = [
     [t('vehicle.brand'), vehicle.name.split(' ').slice(0, -1).join(' ')],

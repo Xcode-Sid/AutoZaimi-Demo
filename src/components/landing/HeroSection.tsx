@@ -9,17 +9,14 @@ import {
   Stack,
   Badge,
   SimpleGrid,
-  SegmentedControl,
-  TextInput,
   Paper,
   useMantineColorScheme,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck, IconClock } from '@tabler/icons-react';
+import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import type { RentalMode } from '../../data/bookings';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '../common/AnimatedSection';
 
 function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
@@ -50,10 +47,6 @@ export function HeroSection() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
-  const [heroRentalMode, setHeroRentalMode] = useState<RentalMode>('day');
-  const [heroHourDate, setHeroHourDate] = useState<string | null>(null);
-  const [heroHourStart, setHeroHourStart] = useState('09:00');
-  const [heroHourEnd, setHeroHourEnd] = useState('17:00');
   const heroRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -187,92 +180,18 @@ export function HeroSection() {
               }}
             >
               <Stack gap="lg">
-                <div>
-                  <Text size="sm" fw={600} mb={8}>
-                    {t('hero.rentMode')}
-                  </Text>
-                  <motion.div layout transition={{ type: 'spring', stiffness: 400, damping: 30 }}>
-                    <SegmentedControl
-                      fullWidth
-                      radius="xl"
-                      size="md"
-                      color="teal"
-                      value={heroRentalMode}
-                      onChange={(v) => setHeroRentalMode(v as RentalMode)}
-                      data={[
-                        { label: t('rental.rentByDays'), value: 'day' },
-                        { label: t('rental.rentByHours'), value: 'hour' },
-                      ]}
-                    />
-                  </motion.div>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {heroRentalMode === 'day' ? (
-                    <motion.div
-                      key="hero-day"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                        <DatePickerInput
-                          type="range"
-                          label={t('hero.pickupDate')}
-                          placeholder={`${t('hero.pickupDate')} — ${t('hero.returnDate')}`}
-                          value={dateRange}
-                          onChange={setDateRange}
-                          minDate={new Date().toISOString().split('T')[0]}
-                          radius="lg"
-                          size="md"
-                        />
-                      </SimpleGrid>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="hero-hour"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.25 }}
-                    >
-                      <Stack gap="md">
-                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                          <DatePickerInput
-                            type="default"
-                            label={t('rental.singleDay')}
-                            value={heroHourDate}
-                            onChange={setHeroHourDate}
-                            minDate={new Date().toISOString().split('T')[0]}
-                            radius="lg"
-                            size="md"
-                          />
-                        </SimpleGrid>
-                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                          <TextInput
-                            type="time"
-                            label={t('rental.pickupTime')}
-                            value={heroHourStart}
-                            onChange={(e) => setHeroHourStart(e.currentTarget.value)}
-                            leftSection={<IconClock size={16} />}
-                            radius="lg"
-                            size="md"
-                          />
-                          <TextInput
-                            type="time"
-                            label={t('rental.returnTime')}
-                            value={heroHourEnd}
-                            onChange={(e) => setHeroHourEnd(e.currentTarget.value)}
-                            leftSection={<IconClock size={16} />}
-                            radius="lg"
-                            size="md"
-                          />
-                        </SimpleGrid>
-                      </Stack>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                  <DatePickerInput
+                    type="range"
+                    label={t('hero.pickupDate')}
+                    placeholder={`${t('hero.pickupDate')} — ${t('hero.returnDate')}`}
+                    value={dateRange}
+                    onChange={setDateRange}
+                    minDate={new Date().toISOString().split('T')[0]}
+                    radius="lg"
+                    size="md"
+                  />
+                </SimpleGrid>
 
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Button

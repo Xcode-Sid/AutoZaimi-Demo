@@ -64,7 +64,6 @@ export default function BookingsPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<Booking['status'] | null>(null);
   const [paymentFilter, setPaymentFilter] = useState<'cash' | 'card' | null>(null);
-  const [rentalTypeFilter, setRentalTypeFilter] = useState<'day' | 'hour' | null>(null);
 
   const userBookings = user ? getUserBookings(user.id) : [];
 
@@ -78,7 +77,6 @@ export default function BookingsPage() {
     }
     if (statusFilter && b.status !== statusFilter) return false;
     if (paymentFilter && b.paymentMethod !== paymentFilter) return false;
-    if (rentalTypeFilter && b.rentalMode !== rentalTypeFilter) return false;
     return true;
   });
 
@@ -133,10 +131,9 @@ export default function BookingsPage() {
               <Select
                 placeholder={t('account.status')}
                 data={[
-                  { value: 'confirmed', label: t('account.confirmed') },
-                  { value: 'pending', label: t('account.pending') },
-                  { value: 'completed', label: t('account.completed') },
-                  { value: 'cancelled', label: t('account.cancelled') },
+                  { value: 'accepted', label: t('account.accepted') },
+                  { value: 'refused', label: t('account.refused') },
+                  { value: 'finished', label: t('account.finished') },
                 ]}
                 value={statusFilter}
                 onChange={(v) => setStatusFilter((v as Booking['status'] | null) ?? null)}
@@ -154,17 +151,6 @@ export default function BookingsPage() {
                 clearable
                 w={190}
               />
-              <Select
-                placeholder={t('account.rentalType')}
-                data={[
-                  { value: 'day', label: t('account.typeDay') },
-                  { value: 'hour', label: t('account.typeHour') },
-                ]}
-                value={rentalTypeFilter}
-                onChange={(v) => setRentalTypeFilter((v as 'day' | 'hour' | null) ?? null)}
-                clearable
-                w={190}
-              />
               <Button
                 variant="subtle"
                 color="gray"
@@ -172,7 +158,6 @@ export default function BookingsPage() {
                   setSearch('');
                   setStatusFilter(null);
                   setPaymentFilter(null);
-                  setRentalTypeFilter(null);
                 }}
               >
                 {t('account.filtersReset')}
@@ -219,7 +204,7 @@ export default function BookingsPage() {
                   <Table.Tbody>
                     {filteredBookings.map((b, i) => {
                       const vehicle = vehicles.find((v) => v.id === b.vehicleId);
-                      const cancelled = b.status === 'cancelled';
+                      const refused = b.status === 'refused';
                       return (
                         <Table.Tr
                           key={b.id}
@@ -261,10 +246,10 @@ export default function BookingsPage() {
                             <Text
                               size="sm"
                               fw={700}
-                              c={cancelled ? 'dimmed' : 'teal'}
+                              c={refused ? 'dimmed' : 'teal'}
                               style={{
-                                textDecoration: cancelled ? 'line-through' : undefined,
-                                opacity: cancelled ? 0.75 : 1,
+                                textDecoration: refused ? 'line-through' : undefined,
+                                opacity: refused ? 0.75 : 1,
                               }}
                             >
                               €{b.total.toLocaleString()}

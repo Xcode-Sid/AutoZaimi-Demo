@@ -19,7 +19,6 @@ import {
   ThemeIcon,
   Divider,
   UnstyledButton,
-  SegmentedControl,
 } from '@mantine/core';
 import {
   IconLayoutGrid,
@@ -36,8 +35,7 @@ import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@mantine/hooks';
 import { motion } from 'framer-motion';
 import { vehicles } from '../data/vehicles';
-import { VehicleCard, type FleetPriceEmphasis } from '../components/common/VehicleCard';
-import { hourlyRateFromDaily } from '../utils/rentalPricing';
+import { VehicleCard } from '../components/common/VehicleCard';
 import { EmptyState } from '../components/common/EmptyState';
 import { AnimatedSection, StaggerContainer, StaggerItem } from '../components/common/AnimatedSection';
 
@@ -74,14 +72,12 @@ export default function FleetPage() {
   const [fuelTypes, setFuelTypes] = useState<string[]>([]);
   const [transmission, setTransmission] = useState<string[]>([]);
   const [seatsFilter, setSeatsFilter] = useState('');
-  const [rentalPriceFilter, setRentalPriceFilter] = useState<FleetPriceEmphasis>('all');
   const [page, setPage] = useState(1);
 
   const categories = ['Luksoze', 'SUV', 'Elektrike', 'Ekonomike'];
 
   const activeFilterCount = [
     category,
-    rentalPriceFilter !== 'all',
     fuelTypes.length > 0,
     transmission.length > 0,
     seatsFilter.length > 0,
@@ -97,7 +93,6 @@ export default function FleetPage() {
     setFuelTypes([]);
     setTransmission([]);
     setSeatsFilter('');
-    setRentalPriceFilter('all');
     setPage(1);
     setDrawerOpen(false);
     setFilterFormKey((k) => k + 1);
@@ -130,13 +125,7 @@ export default function FleetPage() {
 
     switch (sortBy) {
       case 'recommended':
-        if (rentalPriceFilter === 'day') {
-          result.sort((a, b) => a.price - b.price);
-        } else if (rentalPriceFilter === 'hour') {
-          result.sort(
-            (a, b) => hourlyRateFromDaily(a.price) - hourlyRateFromDaily(b.price),
-          );
-        }
+        result.sort((a, b) => a.price - b.price);
         break;
       case 'priceAsc':
         result.sort((a, b) => a.price - b.price);
@@ -150,7 +139,7 @@ export default function FleetPage() {
     }
 
     return result;
-  }, [search, category, sortBy, rentalPriceFilter, priceRange, fuelTypes, transmission, seatsFilter]);
+  }, [search, category, sortBy, priceRange, fuelTypes, transmission, seatsFilter]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
@@ -229,38 +218,6 @@ export default function FleetPage() {
             );
           })}
         </SimpleGrid>
-      </motion.div>
-
-      {/* Day vs hour pricing (fleet rental filter) */}
-      <motion.div
-        className="filter-section"
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.08 }}
-      >
-        <div className="filter-section-label">
-          <span className="label-dot" />
-          <Text fw={600} size="sm">{t('fleet.rentalLength')}</Text>
-        </div>
-        <Text size="xs" c="dimmed" mb="xs">
-          {t('fleet.rentalLengthDesc')}
-        </Text>
-        <SegmentedControl
-          fullWidth
-          size="sm"
-          radius="md"
-          color="teal"
-          value={rentalPriceFilter}
-          onChange={(v) => {
-            setRentalPriceFilter(v as FleetPriceEmphasis);
-            setPage(1);
-          }}
-          data={[
-            { value: 'all', label: t('fleet.all') },
-            { value: 'day', label: t('rental.rentByDays') },
-            { value: 'hour', label: t('rental.rentByHours') },
-          ]}
-        />
       </motion.div>
 
       {/* Price Range */}
@@ -534,7 +491,7 @@ export default function FleetPage() {
                       >
                         {paged.map((vehicle, i) => (
                           <StaggerItem key={vehicle.id} scale>
-                            <VehicleCard vehicle={vehicle} index={i} priceEmphasis={rentalPriceFilter} />
+                            <VehicleCard vehicle={vehicle} index={i} />
                           </StaggerItem>
                         ))}
                       </SimpleGrid>
