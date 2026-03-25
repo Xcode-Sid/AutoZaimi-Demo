@@ -1,3 +1,5 @@
+export type RentalMode = 'day' | 'hour';
+
 export interface Booking {
   id: string;
   ref: string;
@@ -10,6 +12,11 @@ export interface Booking {
   total: number;
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
   addons?: string[];
+  /** Defaults to day when omitted (legacy rows). */
+  rentalMode?: RentalMode;
+  billableHours?: number;
+  hourStartTime?: string;
+  hourEndTime?: string;
 }
 
 export const bookings: Booking[] = [
@@ -60,5 +67,21 @@ export const bookings: Booking[] = [
     endDate: '2026-02-12',
     total: 360,
     status: 'cancelled',
+  },
+  {
+    id: 'b5',
+    ref: 'AZR-2026-00201',
+    userId: 'user-1',
+    vehicleId: 3,
+    vehicleName: 'Tesla Model 3',
+    paymentMethod: 'card',
+    startDate: '2026-04-05',
+    endDate: '2026-04-05',
+    total: 60,
+    status: 'confirmed',
+    rentalMode: 'hour',
+    billableHours: 5,
+    hourStartTime: '10:00',
+    hourEndTime: '15:00',
   },
 ];

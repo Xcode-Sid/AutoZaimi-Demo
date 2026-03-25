@@ -10,14 +10,18 @@ import {
   Stack,
   Badge,
   SimpleGrid,
-  ThemeIcon,
+  SegmentedControl,
+  TextInput,
   Paper,
   useMantineColorScheme,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck } from '@tabler/icons-react';
+import { IconSearch, IconShieldCheck, IconHeadset, IconCircleCheck, IconClock } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import type { RentalMode } from '../../data/bookings';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '../common/AnimatedSection';
 
 function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -47,6 +51,17 @@ export function HeroSection() {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
+  const [heroRentalMode, setHeroRentalMode] = useState<RentalMode>('day');
+  const [heroHourDate, setHeroHourDate] = useState<string | null>(null);
+  const [heroHourStart, setHeroHourStart] = useState('09:00');
+  const [heroHourEnd, setHeroHourEnd] = useState('17:00');
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
 
   const locations = [
     { value: 'tirane', label: t('locations.tirane') },
@@ -58,25 +73,27 @@ export function HeroSection() {
 
   return (
     <Box
+      ref={heroRef}
       py={{ base: 60, sm: 80, md: 100 }}
       style={{
         position: 'relative',
         overflow: 'hidden',
-        minHeight: '85vh',
+        minHeight: '90vh',
         display: 'flex',
         alignItems: 'center',
         background: isDark ? undefined : '#f8f9fa',
       }}
     >
-      {/* Background image — subtler in light mode */}
-      <Box
+      {/* Parallax background image */}
+      <motion.div
         style={{
           position: 'absolute',
-          inset: 0,
+          inset: '-10% 0',
           backgroundImage: 'url(https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1920&auto=format)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: isDark ? 0.12 : 0.06,
+          opacity: isDark ? 0.15 : 0.08,
+          y: bgY,
         }}
       />
 
@@ -95,158 +112,285 @@ export function HeroSection() {
       {/* Floating orbs — hidden in light mode */}
       {isDark && (
         <>
-          <div className="hero-orb hero-orb-1" />
-          <div className="hero-orb hero-orb-2" />
-          <div className="hero-orb hero-orb-3" />
+          <motion.div
+            style={{
+              position: 'absolute', width: 300, height: 300, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(45,212,168,0.08) 0%, transparent 70%)',
+              top: '10%', left: '10%',
+            }}
+            animate={{ y: [0, -20, 0], x: [0, 10, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            style={{
+              position: 'absolute', width: 200, height: 200, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(45,212,168,0.06) 0%, transparent 70%)',
+              bottom: '20%', right: '15%',
+            }}
+            animate={{ y: [0, 15, 0], x: [0, -10, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
         </>
       )}
 
       <Container size="lg" style={{ position: 'relative', zIndex: 1 }}>
-        <Stack align="center" gap="xl" className="animate-slide-up">
+        <Stack align="center" gap="xl">
           {/* Label */}
-          <div className="section-label">
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--az-teal)', boxShadow: '0 0 8px var(--az-teal)' }} />
-            {t('hero.subtitle')}
-          </div>
+          <AnimatedSection delay={0.1}>
+            <div className="section-label">
+              <motion.span
+                style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--az-teal)', display: 'inline-block' }}
+                animate={{ boxShadow: ['0 0 4px var(--az-teal)', '0 0 16px var(--az-teal)', '0 0 4px var(--az-teal)'] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              {t('hero.subtitle')}
+            </div>
+          </AnimatedSection>
 
-          <Title
-            ta="center"
-            fw={900}
-            style={{
-              fontSize: 'clamp(2rem, 6vw, 4.2rem)',
-              lineHeight: 1.08,
-              color: isDark ? undefined : '#1a1b1e',
-            }}
-          >
-            <Text
-              component="span"
-              inherit
-              c="teal"
+          <AnimatedSection delay={0.2} scale>
+            <Title
+              ta="center"
+              fw={900}
+              style={{
+                fontSize: 'clamp(2.4rem, 7vw, 5rem)',
+                lineHeight: 1.05,
+                color: isDark ? undefined : '#1a1b1e',
+                letterSpacing: '-0.02em',
+              }}
             >
-              {t('hero.title')}
-            </Text>
-          </Title>
+              <Text
+                component="span"
+                inherit
+                c="teal"
+              >
+                {t('hero.title')}
+              </Text>
+            </Title>
+          </AnimatedSection>
 
-          <Text
-            ta="center"
-            size="lg"
-            maw={550}
-            c={isDark ? 'dimmed' : undefined}
-            style={!isDark ? { color: '#868e96' } : undefined}
-          >
-            {t('featured.subtitle')}
-          </Text>
+          <AnimatedSection delay={0.35}>
+            <Text
+              ta="center"
+              size="xl"
+              maw={600}
+              c={isDark ? 'dimmed' : undefined}
+              style={!isDark ? { color: '#868e96' } : undefined}
+            >
+              {t('featured.subtitle')}
+            </Text>
+          </AnimatedSection>
 
           {/* Search Card */}
-          <Box
-            className={`animate-scale-in ${isDark ? 'glass-card animated-gradient-border' : ''}`}
-            p={{ base: 'lg', sm: 'xl' }}
-            w="100%"
-            maw={720}
-            style={{
-              borderRadius: 'var(--mantine-radius-xl)',
-              boxShadow: isDark
-                ? '0 30px 80px rgba(0,0,0,0.35)'
-                : '0 8px 40px rgba(0,0,0,0.10)',
-              border: isDark ? 'none' : '1px solid #e9ecef',
-              background: isDark ? undefined : '#ffffff',
-            }}
-          >
-            <Stack gap="lg">
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <DatePickerInput
-                  type="range"
-                  label={t('hero.pickupDate')}
-                  placeholder={`${t('hero.pickupDate')} — ${t('hero.returnDate')}`}
-                  value={dateRange}
-                  onChange={setDateRange}
-                  minDate={new Date().toISOString().split('T')[0]}
-                  radius="lg"
-                  size="md"
-                />
-                <Select
-                  label={t('hero.pickupLocation')}
-                  placeholder={t('hero.pickupLocation')}
-                  data={locations}
-                  radius="lg"
-                  size="md"
-                />
-              </SimpleGrid>
+          <AnimatedSection delay={0.45} scale>
+            <Box
+              className={`${isDark ? 'glass-card' : ''}`}
+              p={{ base: 'lg', sm: 'xl' }}
+              w="100%"
+              maw={720}
+              style={{
+                borderRadius: 'var(--mantine-radius-xl)',
+                boxShadow: isDark
+                  ? '0 30px 80px rgba(0,0,0,0.35)'
+                  : '0 8px 40px rgba(0,0,0,0.10)',
+                border: isDark ? '1px solid rgba(45,212,168,0.1)' : '1px solid #e9ecef',
+                background: isDark ? undefined : '#ffffff',
+              }}
+            >
+              <Stack gap="lg">
+                <div>
+                  <Text size="sm" fw={600} mb={8}>
+                    {t('hero.rentMode')}
+                  </Text>
+                  <motion.div layout transition={{ type: 'spring', stiffness: 400, damping: 30 }}>
+                    <SegmentedControl
+                      fullWidth
+                      radius="xl"
+                      size="md"
+                      color="teal"
+                      value={heroRentalMode}
+                      onChange={(v) => setHeroRentalMode(v as RentalMode)}
+                      data={[
+                        { label: t('rental.rentByDays'), value: 'day' },
+                        { label: t('rental.rentByHours'), value: 'hour' },
+                      ]}
+                    />
+                  </motion.div>
+                </div>
 
-              <Button
-                size="lg"
-                fullWidth
-                variant="filled"
-                color="teal"
-                leftSection={<IconSearch size={20} />}
-                onClick={() => navigate('/fleet')}
-                className="btn-glow"
-                radius="xl"
-              >
-                {t('hero.searchBtn')}
-              </Button>
-            </Stack>
-          </Box>
+                <AnimatePresence mode="wait">
+                  {heroRentalMode === 'day' ? (
+                    <motion.div
+                      key="hero-day"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                        <DatePickerInput
+                          type="range"
+                          label={t('hero.pickupDate')}
+                          placeholder={`${t('hero.pickupDate')} — ${t('hero.returnDate')}`}
+                          value={dateRange}
+                          onChange={setDateRange}
+                          minDate={new Date().toISOString().split('T')[0]}
+                          radius="lg"
+                          size="md"
+                        />
+                        <Select
+                          label={t('hero.pickupLocation')}
+                          placeholder={t('hero.pickupLocation')}
+                          data={locations}
+                          radius="lg"
+                          size="md"
+                        />
+                      </SimpleGrid>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="hero-hour"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <Stack gap="md">
+                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                          <DatePickerInput
+                            type="default"
+                            label={t('rental.singleDay')}
+                            value={heroHourDate}
+                            onChange={setHeroHourDate}
+                            minDate={new Date().toISOString().split('T')[0]}
+                            radius="lg"
+                            size="md"
+                          />
+                          <Select
+                            label={t('hero.pickupLocation')}
+                            placeholder={t('hero.pickupLocation')}
+                            data={locations}
+                            radius="lg"
+                            size="md"
+                          />
+                        </SimpleGrid>
+                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                          <TextInput
+                            type="time"
+                            label={t('rental.pickupTime')}
+                            value={heroHourStart}
+                            onChange={(e) => setHeroHourStart(e.currentTarget.value)}
+                            leftSection={<IconClock size={16} />}
+                            radius="lg"
+                            size="md"
+                          />
+                          <TextInput
+                            type="time"
+                            label={t('rental.returnTime')}
+                            value={heroHourEnd}
+                            onChange={(e) => setHeroHourEnd(e.currentTarget.value)}
+                            leftSection={<IconClock size={16} />}
+                            radius="lg"
+                            size="md"
+                          />
+                        </SimpleGrid>
+                      </Stack>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    fullWidth
+                    variant="filled"
+                    color="teal"
+                    leftSection={<IconSearch size={20} />}
+                    onClick={() => navigate('/fleet')}
+                    className="btn-glow"
+                    radius="xl"
+                  >
+                    {t('hero.searchBtn')}
+                  </Button>
+                </motion.div>
+              </Stack>
+            </Box>
+          </AnimatedSection>
 
           {/* Stats counter row */}
-          <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="md" mt="lg" w="100%" maw={650}>
-            {[
-              { target: 500, suffix: '+', label: t('hero.stats.cars'), color: 'teal' },
-              { target: 10000, suffix: '+', label: t('hero.stats.clients'), color: 'purple' },
-              { target: 50, suffix: '+', label: t('hero.stats.cities'), color: 'magenta' },
-            ].map((stat, i) => (
-              <Paper
-                key={stat.label}
-                className={`animate-stagger-up ${isDark ? 'glass-card gradient-border-card' : ''}`}
-                p="lg"
-                radius="lg"
-                ta="center"
-                style={{
-                  '--stagger-delay': `${0.6 + i * 0.12}s`,
-                  background: isDark ? undefined : '#ffffff',
-                  border: isDark ? undefined : '1px solid #e9ecef',
-                  boxShadow: isDark ? undefined : '0 2px 12px rgba(0,0,0,0.06)',
-                } as React.CSSProperties}
-              >
-                <Text style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }} fw={900} c={stat.color}>
-                  <CountUp target={stat.target} suffix={stat.suffix} />
-                </Text>
-                <Text
-                  size="xs"
-                  mt={2}
-                  tt="uppercase"
-                  fw={600}
-                  style={{
-                    letterSpacing: '0.05em',
-                    color: isDark ? undefined : '#868e96',
-                  }}
-                  c={isDark ? 'dimmed' : undefined}
-                >
-                  {stat.label}
-                </Text>
-              </Paper>
-            ))}
-          </SimpleGrid>
+          <StaggerContainer stagger={0.15} delay={0.6} style={{ width: '100%', maxWidth: 650 }}>
+            <SimpleGrid cols={{ base: 1, xs: 3 }} spacing="md" mt="lg">
+              {[
+                { target: 500, suffix: '+', label: t('hero.stats.cars'), color: 'teal' },
+                { target: 10000, suffix: '+', label: t('hero.stats.clients'), color: 'teal' },
+                { target: 50, suffix: '+', label: t('hero.stats.cities'), color: 'green' },
+              ].map((stat) => (
+                <StaggerItem key={stat.label} scale>
+                  <Paper
+                    className={`${isDark ? 'glass-card' : ''} card-gradient-border`}
+                    p="lg"
+                    radius="lg"
+                    ta="center"
+                    style={{
+                      background: isDark ? undefined : '#ffffff',
+                      border: isDark ? undefined : '1px solid #e9ecef',
+                      boxShadow: isDark ? undefined : '0 2px 12px rgba(0,0,0,0.06)',
+                    }}
+                  >
+                    <Text style={{ fontSize: 'clamp(1.6rem, 4vw, 2.2rem)' }} fw={900} c={stat.color}>
+                      <CountUp target={stat.target} suffix={stat.suffix} />
+                    </Text>
+                    <Text
+                      size="xs"
+                      mt={2}
+                      tt="uppercase"
+                      fw={600}
+                      style={{
+                        letterSpacing: '0.05em',
+                        color: isDark ? undefined : '#868e96',
+                      }}
+                      c={isDark ? 'dimmed' : undefined}
+                    >
+                      {stat.label}
+                    </Text>
+                  </Paper>
+                </StaggerItem>
+              ))}
+            </SimpleGrid>
+          </StaggerContainer>
 
           {/* Trust badges */}
-          <Group mt="md" justify="center" wrap="wrap">
-            {[
-              { label: t('hero.trust.bestPrice'), icon: IconShieldCheck, color: 'green' as const },
-              { label: t('hero.trust.support'), icon: IconHeadset, color: 'blue' as const },
-              { label: t('hero.trust.verified'), icon: IconCircleCheck, color: 'purple' as const },
-            ].map((badge) => (
-              <Badge
-                key={badge.label}
-                size="lg"
-                variant="light"
-                color={badge.color}
-                leftSection={<ThemeIcon size={18} color={badge.color} variant="transparent"><badge.icon size={16} /></ThemeIcon>}
-                style={{ padding: '0.6rem 1.2rem', transition: 'all 0.3s', cursor: 'default' }}
-              >
-                {badge.label}
-              </Badge>
-            ))}
-          </Group>
+          <StaggerContainer stagger={0.12} delay={0.9}>
+            <Group mt="md" justify="center" wrap="wrap" gap="md">
+              {[
+                { label: t('hero.trust.bestPrice'), icon: IconShieldCheck },
+                { label: t('hero.trust.support'), icon: IconHeadset },
+                { label: t('hero.trust.verified'), icon: IconCircleCheck },
+              ].map((badge) => (
+                <StaggerItem key={badge.label}>
+                  <motion.div whileHover={{ scale: 1.05, y: -2 }} transition={{ type: 'spring', stiffness: 400 }}>
+                    <Badge
+                      size="lg"
+                      variant="outline"
+                      color="gray"
+                      leftSection={<badge.icon size={16} style={{ color: '#2DD4A8' }} />}
+                      style={{
+                        padding: '0.7rem 1.4rem',
+                        cursor: 'default',
+                        borderColor: 'rgba(45, 212, 168, 0.3)',
+                        backgroundColor: 'rgba(45, 212, 168, 0.08)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        fontSize: '0.8rem',
+                      }}
+                    >
+                      {badge.label}
+                    </Badge>
+                  </motion.div>
+                </StaggerItem>
+              ))}
+            </Group>
+          </StaggerContainer>
         </Stack>
       </Container>
     </Box>

@@ -19,21 +19,21 @@ import {
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 
-const reports = [
-  { title: 'Revenue Report', description: 'Monthly revenue breakdown and trends', icon: IconCurrencyEuro, color: 'green' },
-  { title: 'Fleet Report', description: 'Vehicle utilization and maintenance status', icon: IconCar, color: 'purple' },
-  { title: 'Bookings Report', description: 'All bookings with customer details', icon: IconCalendar, color: 'teal' },
-  { title: 'Customers Report', description: 'Customer demographics and activity', icon: IconUsers, color: 'blue' },
-  { title: 'Financial Summary', description: 'Comprehensive financial overview', icon: IconCurrencyEuro, color: 'orange' },
-  { title: 'Performance Report', description: 'KPIs and operational metrics', icon: IconFileText, color: 'magenta' },
-];
+const reportCards = [
+  { id: 'revenue', titleKey: 'admin.reports_card_revenue_title', descKey: 'admin.reports_card_revenue_desc', icon: IconCurrencyEuro, color: 'green' },
+  { id: 'fleet', titleKey: 'admin.reports_card_fleet_title', descKey: 'admin.reports_card_fleet_desc', icon: IconCar, color: 'teal' },
+  { id: 'bookings', titleKey: 'admin.reports_card_bookings_title', descKey: 'admin.reports_card_bookings_desc', icon: IconCalendar, color: 'teal' },
+  { id: 'customers', titleKey: 'admin.reports_card_customers_title', descKey: 'admin.reports_card_customers_desc', icon: IconUsers, color: 'blue' },
+  { id: 'financial', titleKey: 'admin.reports_card_financial_title', descKey: 'admin.reports_card_financial_desc', icon: IconCurrencyEuro, color: 'orange' },
+  { id: 'performance', titleKey: 'admin.reports_card_performance_title', descKey: 'admin.reports_card_performance_desc', icon: IconFileText, color: 'green' },
+] as const;
 
 export default function ReportsPage() {
   const { t } = useTranslation();
 
-  const handleDownload = (title: string) => {
+  const handleDownload = (titleKey: string) => {
     notifications.show({
-      message: `${title} — Download started`,
+      message: `${t(titleKey)} — ${t('admin.reports_downloadStarted')}`,
       color: 'teal',
     });
   };
@@ -46,16 +46,16 @@ export default function ReportsPage() {
       <Text c="dimmed">{t('admin.reportsDesc')}</Text>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-        {reports.map((report) => (
-          <Paper key={report.title} className="glass-card glass-card-hover" p="lg" radius="lg">
+        {reportCards.map((report) => (
+          <Paper key={report.id} className="glass-card glass-card-hover" p="lg" radius="lg">
             <Stack gap="md">
               <Group>
                 <ThemeIcon variant="light" color={report.color} size="lg" radius="md">
                   <report.icon size={20} />
                 </ThemeIcon>
                 <div>
-                  <Text fw={600}>{report.title}</Text>
-                  <Text size="xs" c="dimmed">{report.description}</Text>
+                  <Text fw={600}>{t(report.titleKey)}</Text>
+                  <Text size="xs" c="dimmed">{t(report.descKey)}</Text>
                 </div>
               </Group>
               <Button
@@ -63,9 +63,9 @@ export default function ReportsPage() {
                 color={report.color}
                 leftSection={<IconDownload size={16} />}
                 fullWidth
-                onClick={() => handleDownload(report.title)}
+                onClick={() => handleDownload(report.titleKey)}
               >
-                Download PDF
+                {t('admin.reports_downloadPdf')}
               </Button>
             </Stack>
           </Paper>

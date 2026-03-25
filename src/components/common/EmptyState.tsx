@@ -15,7 +15,7 @@ export function EmptyState({ icon, title, description, actionLabel, actionPath }
 
   return (
     <Stack align="center" gap="md" py={60}>
-      <ThemeIcon size={80} radius="xl" variant="light" color="purple">
+      <ThemeIcon size={80} radius="xl" variant="light" color="teal">
         {icon || <IconMoodEmpty size={40} />}
       </ThemeIcon>
       <Text size="xl" fw={600}>

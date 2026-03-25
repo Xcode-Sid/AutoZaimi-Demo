@@ -7,7 +7,6 @@ import {
   Group,
   ThemeIcon,
   Progress,
-  Box,
 } from '@mantine/core';
 import {
   IconEye,
@@ -18,22 +17,29 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-const trafficSources = [
-  { source: 'Google Search', value: 42, color: 'teal' },
-  { source: 'Direct', value: 28, color: 'purple' },
-  { source: 'Social Media', value: 18, color: 'magenta' },
-  { source: 'Referral', value: 12, color: 'blue' },
+const trafficKeys = [
+  { id: 'google', value: 42, barColor: 'teal' as const },
+  { id: 'direct', value: 28, barColor: 'green' as const },
+  { id: 'social', value: 18, barColor: 'cyan' as const },
+  { id: 'referral', value: 12, barColor: 'blue' as const },
 ];
 
-const pageViews = [
-  { page: 'Landing Page', views: 12500 },
-  { page: 'Fleet Page', views: 8200 },
-  { page: 'Vehicle Detail', views: 6800 },
-  { page: 'Booking Flow', views: 3400 },
+const pageViewKeys = [
+  { id: 'landing', views: 12500 },
+  { id: 'fleet', views: 8200 },
+  { id: 'vehicle', views: 6800 },
+  { id: 'booking', views: 3400 },
 ];
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
+
+  const topStats = [
+    { labelKey: 'admin.analytics_totalVisits', value: '32,500', icon: IconEye, color: 'teal' as const },
+    { labelKey: 'admin.analytics_uniqueUsers', value: '18,200', icon: IconUsers, color: 'green' as const },
+    { labelKey: 'admin.analytics_mobileUsers', value: '58%', icon: IconDeviceMobile, color: 'cyan' as const },
+    { labelKey: 'admin.analytics_desktopUsers', value: '42%', icon: IconDeviceDesktop, color: 'blue' as const },
+  ];
 
   return (
     <Stack gap="xl" className="animate-fade-in">
@@ -43,16 +49,11 @@ export default function AnalyticsPage() {
       <Text c="dimmed">{t('admin.analyticsDesc')}</Text>
 
       <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-        {[
-          { label: 'Total Visits', value: '32,500', icon: IconEye, color: 'teal' },
-          { label: 'Unique Users', value: '18,200', icon: IconUsers, color: 'purple' },
-          { label: 'Mobile Users', value: '58%', icon: IconDeviceMobile, color: 'magenta' },
-          { label: 'Desktop Users', value: '42%', icon: IconDeviceDesktop, color: 'blue' },
-        ].map((stat) => (
-          <Paper key={stat.label} className="glass-card" p="lg" radius="lg">
+        {topStats.map((stat) => (
+          <Paper key={stat.labelKey} className="glass-card" p="lg" radius="lg">
             <Group justify="space-between">
               <div>
-                <Text size="sm" c="dimmed">{stat.label}</Text>
+                <Text size="sm" c="dimmed">{t(stat.labelKey)}</Text>
                 <Text size="xl" fw={700}>{stat.value}</Text>
               </div>
               <ThemeIcon variant="light" color={stat.color} size="lg" radius="md">
@@ -65,30 +66,32 @@ export default function AnalyticsPage() {
 
       <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
         <Paper className="glass-card" p="lg" radius="lg">
-          <Text fw={600} mb="md">Traffic Sources</Text>
+          <Text fw={600} mb="md">{t('admin.analytics_trafficSources')}</Text>
           <Stack gap="sm">
-            {trafficSources.map((src) => (
-              <div key={src.source}>
+            {trafficKeys.map((src) => (
+              <div key={src.id}>
                 <Group justify="space-between" mb={4}>
-                  <Text size="sm">{src.source}</Text>
+                  <Text size="sm">{t(`admin.analytics_source_${src.id}` as const)}</Text>
                   <Text size="sm" fw={500}>{src.value}%</Text>
                 </Group>
-                <Progress value={src.value} color={src.color} size="sm" />
+                <Progress value={src.value} color={src.barColor} size="sm" />
               </div>
             ))}
           </Stack>
         </Paper>
 
         <Paper className="glass-card" p="lg" radius="lg">
-          <Text fw={600} mb="md">Top Pages</Text>
+          <Text fw={600} mb="md">{t('admin.analytics_topPages')}</Text>
           <Stack gap="sm">
-            {pageViews.map((pv) => (
-              <Group key={pv.page} justify="space-between">
+            {pageViewKeys.map((pv) => (
+              <Group key={pv.id} justify="space-between">
                 <Group gap="xs">
                   <IconWorld size={16} style={{ opacity: 0.5 }} />
-                  <Text size="sm">{pv.page}</Text>
+                  <Text size="sm">{t(`admin.analytics_page_${pv.id}` as const)}</Text>
                 </Group>
-                <Text size="sm" fw={500}>{pv.views.toLocaleString()} views</Text>
+                <Text size="sm" fw={500}>
+                  {pv.views.toLocaleString()} {t('admin.analytics_viewsSuffix')}
+                </Text>
               </Group>
             ))}
           </Stack>

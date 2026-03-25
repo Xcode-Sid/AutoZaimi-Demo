@@ -1,13 +1,15 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AppShell, Box, Container, NavLink, Stack, Group, Tabs, ScrollArea } from '@mantine/core';
-import { IconUser, IconHeart, IconCalendar, IconSettings } from '@tabler/icons-react';
+import { IconUser, IconDeviceFloppy, IconCalendar, IconSettings } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
+import { AdBanner } from '../components/common/AdBanner';
 
 const navItems = [
   { path: '/account/profile', icon: IconUser, labelKey: 'account.profile' },
-  { path: '/account/saved', icon: IconHeart, labelKey: 'account.savedCars' },
+  { path: '/account/saved', icon: IconDeviceFloppy, labelKey: 'account.savedCars' },
   { path: '/account/bookings', icon: IconCalendar, labelKey: 'account.myBookings' },
   { path: '/account/settings', icon: IconSettings, labelKey: 'account.settings' },
 ];
@@ -23,24 +25,28 @@ export function AccountLayout() {
         <Navbar />
       </AppShell.Header>
       <AppShell.Main>
+        <AdBanner position="top" />
         <Container size="xl" py="xl">
           {/* Mobile tabs with horizontal scroll */}
           <Box hiddenFrom="md" mb="xl">
             <ScrollArea type="auto" offsetScrollbars>
-              <Tabs
-                value={location.pathname}
-                onChange={(v) => v && navigate(v)}
-              >
+              <Tabs value={location.pathname} onChange={(v) => v && navigate(v)}>
                 <Tabs.List style={{ flexWrap: 'nowrap' }}>
-                  {navItems.map((item) => (
-                    <Tabs.Tab
+                  {navItems.map((item, i) => (
+                    <motion.div
                       key={item.path}
-                      value={item.path}
-                      leftSection={<item.icon size={16} />}
-                      style={{ whiteSpace: 'nowrap' }}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.04 * i, duration: 0.35 }}
                     >
-                      {t(item.labelKey)}
-                    </Tabs.Tab>
+                      <Tabs.Tab
+                        value={item.path}
+                        leftSection={<item.icon size={16} />}
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        {t(item.labelKey)}
+                      </Tabs.Tab>
+                    </motion.div>
                   ))}
                 </Tabs.List>
               </Tabs>
@@ -52,29 +58,46 @@ export function AccountLayout() {
             <Box
               visibleFrom="md"
               w={260}
-              className="glass-card"
+              className="glass-card card-gradient-border"
               p="md"
-              style={{ borderRadius: 'var(--mantine-radius-lg)', flexShrink: 0 }}
+              style={{ borderRadius: 'var(--mantine-radius-xl)', flexShrink: 0 }}
             >
-              <Stack gap={4}>
-                {navItems.map((item) => (
-                  <NavLink
+              <Stack gap={6}>
+                {navItems.map((item, i) => (
+                  <motion.div
                     key={item.path}
-                    label={t(item.labelKey)}
-                    leftSection={<item.icon size={18} />}
-                    active={location.pathname === item.path}
-                    onClick={() => navigate(item.path)}
-                    style={{ borderRadius: 'var(--mantine-radius-md)' }}
-                  />
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.06 * i, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                    whileHover={{ x: 4 }}
+                  >
+                    <NavLink
+                      label={t(item.labelKey)}
+                      leftSection={<item.icon size={18} />}
+                      active={location.pathname === item.path}
+                      onClick={() => navigate(item.path)}
+                      style={{ borderRadius: 'var(--mantine-radius-md)' }}
+                      variant="subtle"
+                      color="teal"
+                    />
+                  </motion.div>
                 ))}
               </Stack>
             </Box>
 
             <Box style={{ flex: 1, minWidth: 0 }}>
-              <Outlet />
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <Outlet />
+              </motion.div>
             </Box>
           </Group>
         </Container>
+        <AdBanner position="bottom" />
         <Footer />
       </AppShell.Main>
     </AppShell>
