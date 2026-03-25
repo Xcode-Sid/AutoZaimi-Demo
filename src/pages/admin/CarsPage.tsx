@@ -18,7 +18,9 @@ import { useForm } from '@mantine/form';
 import { IconSearch, IconPlus, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
+import { motion } from 'framer-motion';
 import { vehicles as initialVehicles, type Vehicle } from '../../data/vehicles';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '../../components/common/AnimatedSection';
 
 const statusColors: Record<string, string> = {
   available: 'green',
@@ -111,160 +113,181 @@ export default function CarsPage() {
   };
 
   return (
-    <Stack gap="xl" className="animate-fade-in">
-      <Group justify="space-between">
-        <Title order={2} fw={700}>
-          {t('admin.manageCars')}
-        </Title>
-        <Button
-          leftSection={<IconPlus size={16} />}
-          variant="filled"
-          color="teal"
-          onClick={openAddModal}
-        >
-          {t('admin.addCar')}
-        </Button>
-      </Group>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Stack gap="xl">
+        <AnimatedSection>
+          <Group justify="space-between">
+            <Title order={2} fw={700}>
+              {t('admin.manageCars')}
+            </Title>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                leftSection={<IconPlus size={16} />}
+                variant="filled"
+                color="teal"
+                onClick={openAddModal}
+                className="ripple-btn"
+              >
+                {t('admin.addCar')}
+              </Button>
+            </motion.div>
+          </Group>
+        </AnimatedSection>
 
-      <Group>
-        <TextInput
-          placeholder={t('admin.searchPlaceholder')}
-          leftSection={<IconSearch size={16} />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          style={{ flex: 1, maxWidth: 300 }}
-        />
-        <Select
-          placeholder={t('admin.category')}
-          data={[
-            { value: 'Luksoze', label: t('fleet.luxury') },
-            { value: 'SUV', label: t('fleet.suv') },
-            { value: 'Elektrike', label: t('fleet.electric') },
-            { value: 'Ekonomike', label: t('fleet.economy') },
-          ]}
-          value={categoryFilter}
-          onChange={setCategoryFilter}
-          clearable
-          w={160}
-        />
-        <Select
-          placeholder={t('admin.carStatus')}
-          data={[
-            { value: 'available', label: t('admin.available') },
-            { value: 'maintenance', label: t('admin.maintenance') },
-            { value: 'unavailable', label: t('admin.unavailable') },
-          ]}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          clearable
-          w={180}
-        />
-      </Group>
-
-      <Table.ScrollContainer minWidth={800}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>#</Table.Th>
-              <Table.Th></Table.Th>
-              <Table.Th>{t('admin.carName')}</Table.Th>
-              <Table.Th>{t('admin.category')}</Table.Th>
-              <Table.Th>{t('admin.pricePerDay')}</Table.Th>
-              <Table.Th>{t('admin.carStatus')}</Table.Th>
-              <Table.Th>{t('admin.carActions')}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filtered.map((car) => (
-              <Table.Tr key={car.id}>
-                <Table.Td>#{String(car.id).padStart(3, '0')}</Table.Td>
-                <Table.Td>
-                  <Image src={car.image} w={50} h={35} radius="sm" fit="cover" />
-                </Table.Td>
-                <Table.Td fw={500}>{car.name}</Table.Td>
-                <Table.Td>
-                  <Badge color={categoryColors[car.category]} variant="light" size="sm">
-                    {car.category}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  €{car.price}/{t('vehicle.perDay')}
-                </Table.Td>
-                <Table.Td>
-                  <Badge color={statusColors[car.status]} variant="light" size="sm">
-                    {t(`admin.${car.status === 'available' ? 'available' : car.status === 'maintenance' ? 'maintenance' : 'unavailable'}`)}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap={4}>
-                    <ActionIcon variant="subtle" color="blue" size="sm">
-                      <IconEye size={16} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant="subtle"
-                      color="yellow"
-                      size="sm"
-                      onClick={() => openEditModal(car)}
-                    >
-                      <IconEdit size={16} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      size="sm"
-                      onClick={() => handleDelete(car.id)}
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Table.ScrollContainer>
-
-      <Modal
-        opened={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title={editingCar ? t('admin.editCar') : t('admin.addCar')}
-        size="lg"
-        centered
-      >
-        <Stack gap="md">
-          <TextInput label={t('admin.carName')} {...form.getInputProps('name')} required />
-          <SimpleGrid cols={2}>
-            <TextInput label={t('vehicle.year')} type="number" {...form.getInputProps('year')} />
-            <TextInput label={`${t('admin.price')} (€/${t('vehicle.perDay')})`} type="number" {...form.getInputProps('price')} />
-          </SimpleGrid>
-          <SimpleGrid cols={2}>
-            <Select
-              label={t('admin.category')}
-              data={['Luksoze', 'SUV', 'Elektrike', 'Ekonomike']}
-              {...form.getInputProps('category')}
+        <AnimatedSection delay={0.1}>
+          <Group>
+            <TextInput
+              placeholder={t('admin.searchPlaceholder')}
+              leftSection={<IconSearch size={16} />}
+              value={search}
+              onChange={(e) => setSearch(e.currentTarget.value)}
+              style={{ flex: 1, maxWidth: 300 }}
             />
             <Select
-              label={t('admin.carStatus')}
+              placeholder={t('admin.category')}
+              data={[
+                { value: 'Luksoze', label: t('fleet.luxury') },
+                { value: 'SUV', label: t('fleet.suv') },
+                { value: 'Elektrike', label: t('fleet.electric') },
+                { value: 'Ekonomike', label: t('fleet.economy') },
+              ]}
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              clearable
+              w={160}
+            />
+            <Select
+              placeholder={t('admin.carStatus')}
               data={[
                 { value: 'available', label: t('admin.available') },
                 { value: 'maintenance', label: t('admin.maintenance') },
                 { value: 'unavailable', label: t('admin.unavailable') },
               ]}
-              {...form.getInputProps('status')}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              clearable
+              w={180}
             />
-          </SimpleGrid>
-          <TextInput label={t('admin.imageUrl')} {...form.getInputProps('image')} />
-          <Textarea label={t('admin.description')} minRows={3} {...form.getInputProps('description')} />
-          <Button
-            variant="filled"
-            color="teal"
-            onClick={handleSave}
-            fullWidth
-          >
-            {t('admin.saveCar')}
-          </Button>
-        </Stack>
-      </Modal>
-    </Stack>
+          </Group>
+        </AnimatedSection>
+
+        <AnimatedSection delay={0.15}>
+          <Table.ScrollContainer minWidth={800}>
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>#</Table.Th>
+                  <Table.Th></Table.Th>
+                  <Table.Th>{t('admin.carName')}</Table.Th>
+                  <Table.Th>{t('admin.category')}</Table.Th>
+                  <Table.Th>{t('admin.pricePerDay')}</Table.Th>
+                  <Table.Th>{t('admin.carStatus')}</Table.Th>
+                  <Table.Th>{t('admin.carActions')}</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {filtered.map((car, idx) => (
+                  <motion.tr
+                    key={car.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.03, duration: 0.3 }}
+                    style={{ transition: 'background 0.2s' }}
+                  >
+                    <Table.Td>#{String(car.id).padStart(3, '0')}</Table.Td>
+                    <Table.Td>
+                      <Image src={car.image} w={50} h={35} radius="sm" fit="cover" />
+                    </Table.Td>
+                    <Table.Td fw={500}>{car.name}</Table.Td>
+                    <Table.Td>
+                      <Badge color={categoryColors[car.category]} variant="light" size="sm">
+                        {car.category}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      €{car.price}/{t('vehicle.perDay')}
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge color={statusColors[car.status]} variant="light" size="sm">
+                        {t(`admin.${car.status === 'available' ? 'available' : car.status === 'maintenance' ? 'maintenance' : 'unavailable'}`)}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={4}>
+                        <ActionIcon variant="subtle" color="blue" size="sm">
+                          <IconEye size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="yellow"
+                          size="sm"
+                          onClick={() => openEditModal(car)}
+                        >
+                          <IconEdit size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => handleDelete(car.id)}
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Group>
+                    </Table.Td>
+                  </motion.tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        </AnimatedSection>
+
+        <Modal
+          opened={modalOpen}
+          onClose={() => setModalOpen(false)}
+          title={editingCar ? t('admin.editCar') : t('admin.addCar')}
+          size="lg"
+          centered
+        >
+          <Stack gap="md">
+            <TextInput label={t('admin.carName')} {...form.getInputProps('name')} required />
+            <SimpleGrid cols={2}>
+              <TextInput label={t('vehicle.year')} type="number" {...form.getInputProps('year')} />
+              <TextInput label={`${t('admin.price')} (€/${t('vehicle.perDay')})`} type="number" {...form.getInputProps('price')} />
+            </SimpleGrid>
+            <SimpleGrid cols={2}>
+              <Select
+                label={t('admin.category')}
+                data={['Luksoze', 'SUV', 'Elektrike', 'Ekonomike']}
+                {...form.getInputProps('category')}
+              />
+              <Select
+                label={t('admin.carStatus')}
+                data={[
+                  { value: 'available', label: t('admin.available') },
+                  { value: 'maintenance', label: t('admin.maintenance') },
+                  { value: 'unavailable', label: t('admin.unavailable') },
+                ]}
+                {...form.getInputProps('status')}
+              />
+            </SimpleGrid>
+            <TextInput label={t('admin.imageUrl')} {...form.getInputProps('image')} />
+            <Textarea label={t('admin.description')} minRows={3} {...form.getInputProps('description')} />
+            <Button
+              variant="filled"
+              color="teal"
+              onClick={handleSave}
+              fullWidth
+            >
+              {t('admin.saveCar')}
+            </Button>
+          </Stack>
+        </Modal>
+      </Stack>
+    </motion.div>
   );
 }

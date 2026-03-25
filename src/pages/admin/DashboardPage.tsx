@@ -30,8 +30,10 @@ import {
   IconFileExport,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { useBookings } from '../../contexts/BookingsContext';
 import { vehicles } from '../../data/vehicles';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '../../components/common/AnimatedSection';
 
 function AnimatedNumber({ target, prefix = '', suffix = '' }: { target: number; prefix?: string; suffix?: string }) {
   const [value, setValue] = useState(0);
@@ -101,7 +103,7 @@ const kpiSparklines: Record<string, { data: { x: string; y: number }[]; color: s
       { x: '1', y: 42 }, { x: '2', y: 44 }, { x: '3', y: 43 }, { x: '4', y: 45 },
       { x: '5', y: 44 }, { x: '6', y: 46 }, { x: '7', y: 45 },
     ],
-    color: 'purple.5',
+    color: 'teal.5',
   },
   revenue: {
     data: [
@@ -173,9 +175,9 @@ export default function DashboardPage() {
       change: '3',
       changeLabel: t('admin.inMaintenance'),
       icon: IconCar,
-      color: 'purple',
+      color: 'teal',
       changeIcon: IconTool,
-      cardClass: 'kpi-card-purple',
+      cardClass: 'kpi-card-teal',
       sparkKey: 'cars' as const,
     },
     {
@@ -206,273 +208,336 @@ export default function DashboardPage() {
   const recentBookings = bookings.slice(0, 5);
 
   return (
-    <Stack gap="xl" className="animate-fade-in">
-      {/* Greeting Header */}
-      <Box>
-        <Title order={2} fw={800}>
-          <Text component="span" inherit c="teal">
-            {t('admin.greeting')}, Admin!
-          </Text>{' '}
-          <Text component="span" inherit style={{ display: 'inline-block' }} className="animate-float">
-            👋
-          </Text>
-        </Title>
-        <Group gap="sm" mt={4}>
-          <Text c="dimmed" size="sm">{t('admin.todayIs')} {dateStr}</Text>
-          <Text c="teal" size="sm" fw={600} ff="monospace">{timeStr}</Text>
-        </Group>
-      </Box>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <Stack gap="xl">
+        {/* Greeting Header */}
+        <AnimatedSection delay={0.05}>
+          <Box>
+            <Title order={2} fw={800}>
+              <Text component="span" inherit c="teal">
+                {t('admin.greetingAdmin')}
+              </Text>{' '}
+              <motion.span
+                style={{ display: 'inline-block' }}
+                animate={{ y: [0, -8, 0], rotate: [0, 14, -8, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              >
+                👋
+              </motion.span>
+            </Title>
+            <Group gap="sm" mt={4}>
+              <Text c="dimmed" size="sm">{t('admin.todayIs')} {dateStr}</Text>
+              <Text c="teal" size="sm" fw={600} ff="monospace">{timeStr}</Text>
+            </Group>
+          </Box>
+        </AnimatedSection>
 
-      {/* KPI Cards */}
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
-        {kpis.map((kpi, index) => {
-          const spark = kpiSparklines[kpi.sparkKey];
-          return (
-            <Paper
-              key={kpi.title}
-              className={`glass-card kpi-card ${kpi.cardClass} animate-stagger-up animate-card-glow`}
-              p="lg"
-              radius="lg"
-              style={{ '--stagger-delay': `${index * 0.1}s`, cursor: 'default' } as React.CSSProperties}
-            >
-              <Group justify="space-between" mb="xs">
-                <Text size="sm" c="dimmed" fw={500}>{kpi.title}</Text>
-                <ThemeIcon
-                  variant="light"
-                  color={kpi.color}
-                  size="lg"
-                  radius="md"
-                  style={{ transition: 'transform 0.3s' }}
-                >
-                  <kpi.icon size={20} />
-                </ThemeIcon>
-              </Group>
-              <Text size="2rem" fw={800} className="animate-number-pop">
-                <AnimatedNumber target={kpi.value} prefix={kpi.prefix || ''} />
-              </Text>
-              <Group gap={4} mt="xs">
-                <kpi.changeIcon size={14} color={`var(--mantine-color-${kpi.color}-6)`} />
-                <Text size="xs" c={kpi.color} fw={500}>{kpi.change}</Text>
-                <Text size="xs" c="dimmed">{kpi.changeLabel}</Text>
-              </Group>
-              <Box mt="sm" style={{ opacity: 0.6 }}>
+        {/* KPI Cards */}
+        <StaggerContainer stagger={0.1} delay={0.15}>
+          <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
+            {kpis.map((kpi) => {
+              const spark = kpiSparklines[kpi.sparkKey];
+              return (
+                <StaggerItem key={kpi.title} scale>
+                  <motion.div
+                    whileHover={{
+                      y: -6,
+                      rotateX: 2,
+                      rotateY: -2,
+                      boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
+                  >
+                    <Paper
+                      className={`glass-card kpi-card ${kpi.cardClass} card-shimmer`}
+                      p="lg"
+                      radius="lg"
+                      style={{ cursor: 'default' }}
+                    >
+                      <Group justify="space-between" mb="xs">
+                        <Text size="sm" c="dimmed" fw={500}>{kpi.title}</Text>
+                        <motion.div
+                          whileHover={{ rotate: 15, scale: 1.1 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          <ThemeIcon
+                            variant="light"
+                            color={kpi.color}
+                            size="lg"
+                            radius="md"
+                          >
+                            <kpi.icon size={20} />
+                          </ThemeIcon>
+                        </motion.div>
+                      </Group>
+                      <Text size="2rem" fw={800}>
+                        <AnimatedNumber target={kpi.value} prefix={kpi.prefix || ''} />
+                      </Text>
+                      <Group gap={4} mt="xs">
+                        <kpi.changeIcon size={14} color={`var(--mantine-color-${kpi.color}-6)`} />
+                        <Text size="xs" c={kpi.color} fw={500}>{kpi.change}</Text>
+                        <Text size="xs" c="dimmed">{kpi.changeLabel}</Text>
+                      </Group>
+                      <Box mt="sm" style={{ opacity: 0.6 }}>
+                        <AreaChart
+                          h={40}
+                          data={spark.data}
+                          dataKey="x"
+                          series={[{ name: 'y', color: spark.color }]}
+                          withXAxis={false}
+                          withYAxis={false}
+                          withDots={false}
+                          withTooltip={false}
+                          gridAxis="none"
+                          curveType="natural"
+                          fillOpacity={0.3}
+                        />
+                      </Box>
+                    </Paper>
+                  </motion.div>
+                </StaggerItem>
+              );
+            })}
+          </SimpleGrid>
+        </StaggerContainer>
+
+        {/* Quick Actions */}
+        <AnimatedSection delay={0.3}>
+          <Paper className="glass-card" p="lg" radius="lg">
+            <Text fw={600} mb="md">{t('admin.quickActions')}</Text>
+            <Group gap="md" wrap="wrap">
+              <Tooltip label={t('admin.addNewCar')}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    leftSection={<IconPlus size={16} />}
+                    variant="filled"
+                    color="teal"
+                    onClick={() => navigate('/admin/cars')}
+                    className="ripple-btn"
+                  >
+                    {t('admin.addNewCar')}
+                  </Button>
+                </motion.div>
+              </Tooltip>
+              <Tooltip label={t('admin.viewBookings')}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    leftSection={<IconEye size={16} />}
+                    variant="outline"
+                    color="teal"
+                    onClick={() => navigate('/admin/bookings')}
+                    className="ripple-btn"
+                  >
+                    {t('admin.viewBookings')}
+                  </Button>
+                </motion.div>
+              </Tooltip>
+              <Tooltip label={t('admin.exportReport')}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button
+                    leftSection={<IconFileExport size={16} />}
+                    variant="outline"
+                    color="gray"
+                    onClick={() => navigate('/admin/reports')}
+                    className="ripple-btn"
+                  >
+                    {t('admin.exportReport')}
+                  </Button>
+                </motion.div>
+              </Tooltip>
+            </Group>
+          </Paper>
+        </AnimatedSection>
+
+        {/* Fleet Status Bar */}
+        <AnimatedSection delay={0.35}>
+          <Paper className="glass-card" p="lg" radius="lg">
+            <Text fw={600} mb="md">{t('admin.fleetStatus')}</Text>
+            <Progress.Root size={28} radius="xl">
+              <Tooltip label={`${t('admin.available')}: ${availableCount}`}>
+                <Progress.Section value={(availableCount / total) * 100} color="green">
+                  <Progress.Label>{t('admin.available')} ({availableCount})</Progress.Label>
+                </Progress.Section>
+              </Tooltip>
+              <Tooltip label={`${t('admin.maintenance')}: ${maintenanceCount}`}>
+                <Progress.Section value={(maintenanceCount / total) * 100} color="orange">
+                  <Progress.Label>{t('admin.maintenance')} ({maintenanceCount})</Progress.Label>
+                </Progress.Section>
+              </Tooltip>
+              <Tooltip label={`${t('admin.unavailable')}: ${unavailableCount}`}>
+                <Progress.Section value={(unavailableCount / total) * 100} color="red">
+                  <Progress.Label>{t('admin.unavailable')} ({unavailableCount})</Progress.Label>
+                </Progress.Section>
+              </Tooltip>
+            </Progress.Root>
+          </Paper>
+        </AnimatedSection>
+
+        {/* Charts Row 1 */}
+        <StaggerContainer stagger={0.15} delay={0.1}>
+          <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+            <StaggerItem direction="left">
+              <Paper className="glass-card" p="lg" radius="lg">
+                <Text fw={600} mb="md">{t('admin.revenueOverview')}</Text>
                 <AreaChart
-                  h={40}
-                  data={spark.data}
-                  dataKey="x"
-                  series={[{ name: 'y', color: spark.color }]}
-                  withXAxis={false}
-                  withYAxis={false}
-                  withDots={false}
-                  withTooltip={false}
-                  gridAxis="none"
+                  h={250}
+                  data={revenueData}
+                  dataKey="month"
+                  series={[{ name: 'revenue', color: 'teal.6' }]}
                   curveType="natural"
+                  gridAxis="xy"
+                  withDots
+                  withTooltip
+                  tooltipAnimationDuration={200}
                   fillOpacity={0.3}
                 />
-              </Box>
-            </Paper>
-          );
-        })}
-      </SimpleGrid>
+              </Paper>
+            </StaggerItem>
 
-      {/* Quick Actions */}
-      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.5s' } as React.CSSProperties}>
-        <Text fw={600} mb="md">{t('admin.quickActions')}</Text>
-        <Group gap="md" wrap="wrap">
-          <Tooltip label={t('admin.addNewCar')}>
-            <Button
-              leftSection={<IconPlus size={16} />}
-              variant="filled"
-              color="teal"
-              onClick={() => navigate('/admin/cars')}
-              style={{ transition: 'transform 0.2s' }}
-            >
-              {t('admin.addNewCar')}
-            </Button>
-          </Tooltip>
-          <Tooltip label={t('admin.viewBookings')}>
-            <Button
-              leftSection={<IconEye size={16} />}
-              variant="outline"
-              color="purple"
-              onClick={() => navigate('/admin/bookings')}
-              style={{ transition: 'all 0.2s' }}
-            >
-              {t('admin.viewBookings')}
-            </Button>
-          </Tooltip>
-          <Tooltip label={t('admin.exportReport')}>
-            <Button
-              leftSection={<IconFileExport size={16} />}
-              variant="outline"
-              color="gray"
-              onClick={() => navigate('/admin/reports')}
-              style={{ transition: 'all 0.2s' }}
-            >
-              {t('admin.exportReport')}
-            </Button>
-          </Tooltip>
-        </Group>
-      </Paper>
+            <StaggerItem direction="right">
+              <Paper className="glass-card" p="lg" radius="lg">
+                <Text fw={600} mb="md">{t('admin.bookingsOverview')}</Text>
+                <BarChart
+                  h={250}
+                  data={bookingsChartData}
+                  dataKey="week"
+                  series={[{ name: 'rentals', color: 'teal.6' }]}
+                  withTooltip
+                  tooltipAnimationDuration={200}
+                  withLegend
+                />
+              </Paper>
+            </StaggerItem>
+          </SimpleGrid>
+        </StaggerContainer>
 
-      {/* Fleet Status Bar */}
-      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.6s' } as React.CSSProperties}>
-        <Text fw={600} mb="md">{t('admin.fleetStatus')}</Text>
-        <Progress.Root size={28} radius="xl">
-          <Tooltip label={`${t('admin.available')}: ${availableCount}`}>
-            <Progress.Section value={(availableCount / total) * 100} color="green">
-              <Progress.Label>{t('admin.available')} ({availableCount})</Progress.Label>
-            </Progress.Section>
-          </Tooltip>
-          <Tooltip label={`${t('admin.maintenance')}: ${maintenanceCount}`}>
-            <Progress.Section value={(maintenanceCount / total) * 100} color="orange">
-              <Progress.Label>{t('admin.maintenance')} ({maintenanceCount})</Progress.Label>
-            </Progress.Section>
-          </Tooltip>
-          <Tooltip label={`${t('admin.unavailable')}: ${unavailableCount}`}>
-            <Progress.Section value={(unavailableCount / total) * 100} color="red">
-              <Progress.Label>{t('admin.unavailable')} ({unavailableCount})</Progress.Label>
-            </Progress.Section>
-          </Tooltip>
-        </Progress.Root>
-      </Paper>
+        {/* Charts Row 2 */}
+        <StaggerContainer stagger={0.15} delay={0.1}>
+          <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+            <StaggerItem direction="left">
+              <Paper className="glass-card" p="lg" radius="lg">
+                <Text fw={600} mb="md">{t('admin.popularCars')}</Text>
+                <BarChart
+                  h={250}
+                  data={popularCarsData}
+                  dataKey="car"
+                  series={[{ name: 'bookings', color: 'teal.6' }]}
+                  orientation="vertical"
+                  withTooltip
+                  tooltipAnimationDuration={200}
+                />
+              </Paper>
+            </StaggerItem>
 
-      {/* Charts */}
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.7s' } as React.CSSProperties}>
-          <Text fw={600} mb="md">{t('admin.revenueOverview')}</Text>
-          <AreaChart
-            h={250}
-            data={revenueData}
-            dataKey="month"
-            series={[{ name: 'revenue', color: 'teal.6' }]}
-            curveType="natural"
-            gridAxis="xy"
-            withDots
-            withTooltip
-            tooltipAnimationDuration={200}
-            fillOpacity={0.3}
-          />
-        </Paper>
+            <StaggerItem direction="right">
+              <Paper className="glass-card" p="lg" radius="lg">
+                <Text fw={600} mb="md">{t('admin.fleetDistribution')}</Text>
+                <Group justify="center">
+                  <DonutChart
+                    data={fleetData}
+                    size={220}
+                    thickness={30}
+                    withLabelsLine
+                    withLabels
+                    tooltipDataSource="segment"
+                  />
+                </Group>
+              </Paper>
+            </StaggerItem>
+          </SimpleGrid>
+        </StaggerContainer>
 
-        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.8s' } as React.CSSProperties}>
-          <Text fw={600} mb="md">{t('admin.bookingsOverview')}</Text>
-          <BarChart
-            h={250}
-            data={bookingsChartData}
-            dataKey="week"
-            series={[{ name: 'rentals', color: 'teal.6' }]}
-            withTooltip
-            tooltipAnimationDuration={200}
-            withLegend
-          />
-        </Paper>
-      </SimpleGrid>
-
-      <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
-        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '0.9s' } as React.CSSProperties}>
-          <Text fw={600} mb="md">{t('admin.popularCars')}</Text>
-          <BarChart
-            h={250}
-            data={popularCarsData}
-            dataKey="car"
-            series={[{ name: 'bookings', color: 'purple.6' }]}
-            orientation="vertical"
-            withTooltip
-            tooltipAnimationDuration={200}
-          />
-        </Paper>
-
-        <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '1.0s' } as React.CSSProperties}>
-          <Text fw={600} mb="md">{t('admin.fleetDistribution')}</Text>
-          <Group justify="center">
-            <DonutChart
-              data={fleetData}
-              size={220}
-              thickness={30}
-              withLabelsLine
-              withLabels
-              tooltipDataSource="segment"
-            />
-          </Group>
-        </Paper>
-      </SimpleGrid>
-
-      {/* Recent Bookings Table */}
-      <Paper className="glass-card animate-stagger-up" p="lg" radius="lg" style={{ '--stagger-delay': '1.1s' } as React.CSSProperties}>
-        <Group justify="space-between" mb="md">
-          <Text fw={600}>{t('admin.recentBookings')}</Text>
-          <Button
-            variant="subtle"
-            size="xs"
-            color="teal"
-            onClick={() => navigate('/admin/bookings')}
-          >
-            {t('admin.viewBookings')}
-          </Button>
-        </Group>
-        {recentBookings.length === 0 ? (
-          <Stack align="center" py="xl" gap="md">
-            <ThemeIcon size={60} variant="light" color="gray" radius="xl">
-              <IconCalendar size={30} />
-            </ThemeIcon>
-            <Text c="dimmed" ta="center">{t('admin.noBookings') || 'No recent bookings'}</Text>
-            <Button variant="light" color="teal" onClick={() => navigate('/admin/bookings')}>
-              {t('admin.viewBookings')}
-            </Button>
-          </Stack>
-        ) : (
-          <Table.ScrollContainer minWidth={600}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>ID</Table.Th>
-                  <Table.Th>{t('admin.customer')}</Table.Th>
-                  <Table.Th>{t('admin.vehicle')}</Table.Th>
-                  <Table.Th>{t('admin.total')}</Table.Th>
-                  <Table.Th>{t('admin.status')}</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {recentBookings.map((b) => (
-                  <Table.Tr
-                    key={b.id}
-                    style={{ transition: 'background 0.2s', cursor: 'pointer' }}
-                  >
-                    <Table.Td>
-                      <Text size="sm" fw={500}>{b.ref}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="sm">
-                        <Avatar size="sm" radius="xl" color="purple">
-                          {b.userId === 'user-1' ? 'AH' : '??'}
-                        </Avatar>
-                        <Text size="sm">
-                          {b.userId === 'user-1' ? 'Artan Hoxha' : 'Guest'}
-                        </Text>
-                      </Group>
-                    </Table.Td>
-                    <Table.Td>{b.vehicleName}</Table.Td>
-                    <Table.Td>
-                      <Text size="sm" fw={600}>€{b.total.toLocaleString()}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        color={statusColors[b.status]}
-                        variant="light"
-                        size="sm"
-                        className={b.status === 'pending' ? 'badge-pulse' : ''}
+        {/* Recent Bookings Table */}
+        <AnimatedSection delay={0.15}>
+          <Paper className="glass-card" p="lg" radius="lg">
+            <Group justify="space-between" mb="md">
+              <Text fw={600}>{t('admin.recentBookings')}</Text>
+              <Button
+                variant="subtle"
+                size="xs"
+                color="teal"
+                onClick={() => navigate('/admin/bookings')}
+              >
+                {t('admin.viewBookings')}
+              </Button>
+            </Group>
+            {recentBookings.length === 0 ? (
+              <Stack align="center" py="xl" gap="md">
+                <motion.div
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <ThemeIcon size={60} variant="light" color="gray" radius="xl">
+                    <IconCalendar size={30} />
+                  </ThemeIcon>
+                </motion.div>
+                <Text c="dimmed" ta="center">{t('admin.noBookings')}</Text>
+                <Button variant="light" color="teal" onClick={() => navigate('/admin/bookings')}>
+                  {t('admin.viewBookings')}
+                </Button>
+              </Stack>
+            ) : (
+              <Table.ScrollContainer minWidth={600}>
+                <Table striped highlightOnHover>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>ID</Table.Th>
+                      <Table.Th>{t('admin.customer')}</Table.Th>
+                      <Table.Th>{t('admin.vehicle')}</Table.Th>
+                      <Table.Th>{t('admin.total')}</Table.Th>
+                      <Table.Th>{t('admin.status')}</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {recentBookings.map((b, idx) => (
+                      <motion.tr
+                        key={b.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.05, duration: 0.3 }}
+                        style={{ transition: 'background 0.2s', cursor: 'pointer' }}
                       >
-                        {b.status}
-                      </Badge>
-                    </Table.Td>
-                  </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
-        )}
-      </Paper>
-    </Stack>
+                        <Table.Td>
+                          <Text size="sm" fw={500}>{b.ref}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Group gap="sm">
+                            <Avatar size="sm" radius="xl" color="teal">
+                              {b.userId === 'user-1' ? 'AH' : '??'}
+                            </Avatar>
+                            <Text size="sm">
+                              {b.userId === 'user-1' ? 'Artan Hoxha' : 'Guest'}
+                            </Text>
+                          </Group>
+                        </Table.Td>
+                        <Table.Td>{b.vehicleName}</Table.Td>
+                        <Table.Td>
+                          <Text size="sm" fw={600}>€{b.total.toLocaleString()}</Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Badge
+                            color={statusColors[b.status]}
+                            variant="light"
+                            size="sm"
+                            className={b.status === 'pending' ? 'badge-pulse' : ''}
+                          >
+                            {b.status}
+                          </Badge>
+                        </Table.Td>
+                      </motion.tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </Table.ScrollContainer>
+            )}
+          </Paper>
+        </AnimatedSection>
+      </Stack>
+    </motion.div>
   );
 }

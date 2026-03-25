@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import {
   Title,
   Table,
@@ -7,60 +8,72 @@ import {
   Avatar,
   ActionIcon,
   Stack,
+  Modal,
+  Button,
+  SimpleGrid,
+  Image,
+  Paper,
+  Tooltip,
+  TextInput,
+  Select,
 } from '@mantine/core';
-import { IconEye, IconMail, IconBan } from '@tabler/icons-react';
+import { useForm } from '@mantine/form';
+import { IconEye, IconPencil, IconCalendar } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { AnimatePresence, motion } from 'framer-motion';
+import { users, type User } from '../../data/users';
+import { ads } from '../../data/ads';
+import { useBookings } from '../../contexts/BookingsContext';
+import { formatBookingPeriod } from '../../utils/bookingDisplay';
+import { BookingDetailContent, bookingStatusKeys } from '../../components/booking/BookingDetailContent';
+import { vehicles } from '../../data/vehicles';
+import type { Booking } from '../../data/bookings';
 
-const customers = [
-  {
-    id: 'C001',
-    name: 'Artan Hoxha',
-    avatar: 'AH',
-    email: 'artan@email.com',
-    phone: '+355 69 123 4567',
-    bookings: 4,
-    status: 'active',
-  },
-  {
-    id: 'C002',
-    name: 'Elona Kushi',
-    avatar: 'EK',
-    email: 'elona@email.com',
-    phone: '+355 69 234 5678',
-    bookings: 2,
-    status: 'active',
-  },
-  {
-    id: 'C003',
-    name: 'Dritan Leka',
-    avatar: 'DL',
-    email: 'dritan@email.com',
-    phone: '+355 69 345 6789',
-    bookings: 3,
-    status: 'active',
-  },
-  {
-    id: 'C004',
-    name: 'Blerina Topi',
-    avatar: 'BT',
-    email: 'blerina@email.com',
-    phone: '+355 69 456 7890',
-    bookings: 1,
-    status: 'active',
-  },
-  {
-    id: 'C005',
-    name: 'Gentian Muka',
-    avatar: 'GM',
-    email: 'gentian@email.com',
-    phone: '+355 69 567 8901',
-    bookings: 2,
-    status: 'inactive',
-  },
-];
+const statusColors: Record<string, string> = {
+  confirmed: 'green',
+  pending: 'yellow',
+  completed: 'gray',
+  cancelled: 'red',
+};
 
 export default function CustomersPage() {
   const { t } = useTranslation();
+  const { getUserBookings } = useBookings();
+
+  const customerUsers = useMemo(() => users.filter((u) => u.role === 'user'), []);
+
+  const [adsOpen, setAdsOpen] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [bookingsFor, setBookingsFor] = useState<User | null>(null);
+  const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
+
+  const editForm = useForm({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      customerStatus: 'active' as 'active' | 'inactive',
+    },
+  });
+
+  const openEdit = (u: User) => {
+    editForm.setValues({
+      firstName: u.firstName,
+      lastName: u.lastName,
+      email: u.email,
+      phone: u.phone,
+      customerStatus: u.customerStatus ?? 'active',
+    });
+    setEditUser(u);
+  };
+
+  const handleSaveEdit = () => {
+    setEditUser(null);
+    editForm.reset();
+  };
+
+  const detailVehicle = detailBooking ? vehicles.find((v) => v.id === detailBooking.vehicleId) : undefined;
 
   return (
     <Stack gap="xl" className="animate-fade-in">
@@ -82,57 +95,184 @@ export default function CustomersPage() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {customers.map((c) => (
-              <Table.Tr key={c.id}>
-                <Table.Td>
-                  <Text size="sm" fw={500}>{c.id}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="sm">
-                    <Avatar size="sm" radius="xl" color="purple">
-                      {c.avatar}
-                    </Avatar>
-                    <Text size="sm">{c.name}</Text>
-                  </Group>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{c.email}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{c.phone}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge circle variant="light" color="purple">
-                    {c.bookings}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    color={c.status === 'active' ? 'green' : 'gray'}
-                    variant="light"
-                    size="sm"
-                  >
-                    {c.status === 'active' ? t('admin.active') : t('admin.inactive')}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap={4}>
-                    <ActionIcon variant="subtle" color="blue" size="sm">
-                      <IconEye size={16} />
-                    </ActionIcon>
-                    <ActionIcon variant="subtle" color="teal" size="sm">
-                      <IconMail size={16} />
-                    </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" size="sm">
-                      <IconBan size={16} />
-                    </ActionIcon>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
+            {customerUsers.map((c) => {
+              const count = getUserBookings(c.id).length;
+              const st = c.customerStatus ?? 'active';
+              return (
+                <Table.Tr key={c.id}>
+                  <Table.Td>
+                    <Text size="sm" fw={500}>{c.id}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="sm">
+                      <Avatar size="sm" radius="xl" color="teal">
+                        {c.avatar}
+                      </Avatar>
+                      <Text size="sm">{c.firstName} {c.lastName}</Text>
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{c.email}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{c.phone}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge circle variant="light" color="teal">
+                      {count}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge
+                      color={st === 'active' ? 'green' : 'gray'}
+                      variant="light"
+                      size="sm"
+                    >
+                      {st === 'active' ? t('admin.active') : t('admin.inactive')}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap={4}>
+                      <Tooltip label={t('admin.viewAds')}>
+                        <ActionIcon variant="subtle" color="blue" size="sm" onClick={() => setAdsOpen(true)} aria-label={t('admin.viewAds')}>
+                          <IconEye size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label={t('admin.editCustomer')}>
+                        <ActionIcon variant="subtle" color="teal" size="sm" onClick={() => openEdit(c)} aria-label={t('admin.editCustomer')}>
+                          <IconPencil size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label={t('admin.userBookings')}>
+                        <ActionIcon variant="subtle" color="grape" size="sm" onClick={() => setBookingsFor(c)} aria-label={t('admin.userBookings')}>
+                          <IconCalendar size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+
+      <Modal opened={adsOpen} onClose={() => setAdsOpen(false)} title={t('admin.userAdsModalTitle')} size="lg" radius="md">
+        <Text size="sm" c="dimmed" mb="md">
+          {t('admin.userAdsModalSubtitle')}
+        </Text>
+        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+          {ads.map((ad) => (
+            <Paper key={ad.id} p="sm" radius="md" withBorder>
+              <Image src={ad.imageUrl} h={120} radius="sm" fit="cover" alt="" />
+              <Text fw={600} mt="sm" size="sm">{ad.title}</Text>
+              <Badge size="xs" mt={4} color={ad.isActive ? 'teal' : 'gray'}>
+                {ad.isActive ? t('admin.adActive') : t('admin.unavailable')}
+              </Badge>
+            </Paper>
+          ))}
+        </SimpleGrid>
+      </Modal>
+
+      <Modal opened={!!editUser} onClose={() => setEditUser(null)} title={t('admin.editCustomer')} radius="md">
+        <form
+          onSubmit={editForm.onSubmit(() => handleSaveEdit())}
+        >
+          <Stack gap="sm">
+            <TextInput label={t('account.firstName')} {...editForm.getInputProps('firstName')} />
+            <TextInput label={t('account.lastName')} {...editForm.getInputProps('lastName')} />
+            <TextInput label={t('admin.email')} {...editForm.getInputProps('email')} />
+            <TextInput label={t('admin.phone')} {...editForm.getInputProps('phone')} />
+            <Select
+              label={t('admin.customerStatus')}
+              data={[
+                { value: 'active', label: t('admin.active') },
+                { value: 'inactive', label: t('admin.inactive') },
+              ]}
+              {...editForm.getInputProps('customerStatus')}
+            />
+            <Button type="submit" color="teal">{t('common.save')}</Button>
+          </Stack>
+        </form>
+      </Modal>
+
+      <Modal
+        opened={!!bookingsFor}
+        onClose={() => { setBookingsFor(null); setDetailBooking(null); }}
+        title={bookingsFor ? `${t('admin.userBookings')} — ${bookingsFor.firstName} ${bookingsFor.lastName}` : ''}
+        size="lg"
+      >
+        {bookingsFor && (
+          <>
+            {getUserBookings(bookingsFor.id).length === 0 ? (
+              <Text c="dimmed" size="sm">{t('admin.noBookingsForCustomer')}</Text>
+            ) : (
+              <Table.ScrollContainer minWidth={500}>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>{t('admin.bookingIdColumn')}</Table.Th>
+                      <Table.Th>{t('admin.vehicle')}</Table.Th>
+                      <Table.Th>{t('admin.dates')}</Table.Th>
+                      <Table.Th>{t('admin.total')}</Table.Th>
+                      <Table.Th>{t('admin.status')}</Table.Th>
+                      <Table.Th>{t('admin.carActions')}</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {getUserBookings(bookingsFor.id).map((b) => (
+                      <Table.Tr key={b.id}>
+                        <Table.Td><Text size="sm" ff="monospace">{b.ref}</Text></Table.Td>
+                        <Table.Td>{b.vehicleName}</Table.Td>
+                        <Table.Td><Text size="xs">{formatBookingPeriod(b, t)}</Text></Table.Td>
+                        <Table.Td>€{b.total.toLocaleString()}</Table.Td>
+                        <Table.Td>
+                          <Badge color={statusColors[b.status]} variant="light" size="sm">{t(bookingStatusKeys[b.status])}</Badge>
+                        </Table.Td>
+                        <Table.Td>
+                          <ActionIcon variant="subtle" color="teal" size="sm" onClick={() => setDetailBooking(b)} aria-label={t('admin.viewBookingDetails')}>
+                            <IconEye size={16} />
+                          </ActionIcon>
+                        </Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </Table.ScrollContainer>
+            )}
+          </>
+        )}
+      </Modal>
+
+      <Modal
+        opened={!!detailBooking}
+        onClose={() => setDetailBooking(null)}
+        title={null}
+        size="lg"
+        radius="xl"
+        padding={0}
+        overlayProps={{ backgroundOpacity: 0.55, blur: 3 }}
+      >
+        <AnimatePresence mode="wait">
+          {detailBooking && (
+            <motion.div
+              key={detailBooking.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <BookingDetailContent
+                booking={detailBooking}
+                vehicleImageUrl={detailVehicle?.image}
+                footer={
+                  <Button variant="light" color="gray" onClick={() => setDetailBooking(null)} radius="xl" fullWidth mt="md">
+                    {t('account.closeModal')}
+                  </Button>
+                }
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Modal>
     </Stack>
   );
 }

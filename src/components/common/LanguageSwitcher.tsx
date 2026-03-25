@@ -9,13 +9,13 @@ const languages = [
 ];
 
 export function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const current = languages.find((l) => l.code === i18n.language) || languages[0];
 
   return (
     <Menu shadow="md" width={160} position="bottom-end">
       <Menu.Target>
-        <ActionIcon variant="subtle" size="lg" aria-label="Change language">
+        <ActionIcon variant="subtle" size="lg" aria-label={t('nav.changeLanguage')}>
           <Text size="lg">{current.flag}</Text>
         </ActionIcon>
       </Menu.Target>

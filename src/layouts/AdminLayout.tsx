@@ -1,17 +1,14 @@
-import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppShell,
   NavLink,
   Stack,
-  Text,
   Group,
-  Avatar,
   Badge,
-  Button,
-  Burger,
   Box,
-  useMantineColorScheme,
+  Container,
+  Tabs,
+  ScrollArea,
 } from '@mantine/core';
 import {
   IconDashboard,
@@ -21,11 +18,13 @@ import {
   IconSettings,
   IconChartBar,
   IconFileText,
-  IconLogout,
   IconAd,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
+import { motion } from 'framer-motion';
+import { Navbar } from '../components/common/Navbar';
+import { Footer } from '../components/common/Footer';
+import { AdBanner } from '../components/common/AdBanner';
 
 const navItems = [
   { path: '/admin', icon: IconDashboard, labelKey: 'admin.dashboard', badge: null },
@@ -38,122 +37,113 @@ const navItems = [
   { path: '/admin/reports', icon: IconFileText, labelKey: 'admin.reports', badge: null },
 ];
 
+function isAdminNavActive(pathname: string, itemPath: string) {
+  return itemPath === '/admin' ? pathname === '/admin' : pathname.startsWith(itemPath);
+}
+
 export function AdminLayout() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
-  const [opened, setOpened] = useState(false);
-  const { colorScheme } = useMantineColorScheme();
-  const isDark = colorScheme === 'dark';
+
+  const tabValue =
+    navItems.find((item) => isAdminNavActive(location.pathname, item.path))?.path ?? location.pathname;
 
   return (
-    <AppShell
-      navbar={{
-        width: 280,
-        breakpoint: 'md',
-        collapsed: { mobile: !opened },
-      }}
-      padding="md"
-    >
-      <AppShell.Navbar
-        p="md"
-        style={{
-          background: isDark ? 'var(--mantine-color-dark-7)' : '#F8FAFC',
-          borderRight: isDark
-            ? '1px solid var(--mantine-color-dark-5)'
-            : '1px solid #E2E8F0',
-        }}
-      >
-        <AppShell.Section>
-          <Group justify="space-between" mb="md">
-            <Group gap={8}>
-              <Text fw={800} size="lg" c="teal">
-                AutoZaimi
-              </Text>
-              <Badge color="teal" size="sm" variant="filled">
-                Admin
-              </Badge>
-            </Group>
-            <Burger
-              opened={opened}
-              onClick={() => setOpened(false)}
-              hiddenFrom="md"
-              size="sm"
-            />
-          </Group>
-        </AppShell.Section>
-
-        <AppShell.Section grow>
-          <Stack gap={4}>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.path}
-                label={
-                  <Group justify="space-between">
-                    <Text size="sm">{t(item.labelKey)}</Text>
-                    {item.badge && (
-                      <Badge color="red" size="xs" variant="filled" circle>
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Group>
-                }
-                leftSection={<item.icon size={20} />}
-                active={
-                  item.path === '/admin'
-                    ? location.pathname === '/admin'
-                    : location.pathname.startsWith(item.path)
-                }
-                onClick={() => {
-                  navigate(item.path);
-                  setOpened(false);
-                }}
-                style={{ borderRadius: 'var(--mantine-radius-md)' }}
-                color="teal"
-              />
-            ))}
-          </Stack>
-        </AppShell.Section>
-
-        <AppShell.Section>
-          <Box
-            className="glass-card"
-            p="sm"
-            style={{ borderRadius: 'var(--mantine-radius-md)' }}
-          >
-            <Group>
-              <Avatar color="teal" radius="xl">
-                {user?.avatar}
-              </Avatar>
-              <div style={{ flex: 1 }}>
-                <Text size="sm" fw={600}>
-                  {user?.firstName} {user?.lastName}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  Administrator
-                </Text>
-              </div>
-            </Group>
-          </Box>
-          <Button
-            variant="subtle"
-            color="gray"
-            fullWidth
-            mt="sm"
-            leftSection={<IconLogout size={16} />}
-            onClick={() => navigate('/')}
-          >
-            {t('admin.exitAdmin')}
-          </Button>
-        </AppShell.Section>
-      </AppShell.Navbar>
-
+    <AppShell header={{ height: 70 }}>
+      <AppShell.Header>
+        <Navbar />
+      </AppShell.Header>
       <AppShell.Main>
-        <Box hiddenFrom="md" mb="md">
-          <Burger opened={opened} onClick={() => setOpened(true)} size="sm" />
-        </Box>
-        <Outlet />
+        <AdBanner position="top" />
+        <Container size="xl" py="xl">
+          <Box hiddenFrom="md" mb="xl">
+            <ScrollArea type="auto" offsetScrollbars>
+              <Tabs value={tabValue} onChange={(v) => v && navigate(v)}>
+                <Tabs.List style={{ flexWrap: 'nowrap' }}>
+                  {navItems.map((item, i) => (
+                    <motion.div
+                      key={item.path}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.04 * i, duration: 0.35 }}
+                    >
+                      <Tabs.Tab
+                        value={item.path}
+                        leftSection={<item.icon size={16} />}
+                        rightSection={
+                          item.badge ? (
+                            <Badge color="red" size="xs" variant="filled" circle>
+                              {item.badge}
+                            </Badge>
+                          ) : undefined
+                        }
+                        style={{ whiteSpace: 'nowrap' }}
+                      >
+                        {t(item.labelKey)}
+                      </Tabs.Tab>
+                    </motion.div>
+                  ))}
+                </Tabs.List>
+              </Tabs>
+            </ScrollArea>
+          </Box>
+
+          <Group align="flex-start" gap="xl" wrap="nowrap">
+            <Box
+              visibleFrom="md"
+              w={260}
+              className="glass-card card-gradient-border"
+              p="md"
+              style={{ borderRadius: 'var(--mantine-radius-xl)', flexShrink: 0 }}
+            >
+              <Stack gap={6}>
+                {navItems.map((item, i) => {
+                  const active = isAdminNavActive(location.pathname, item.path);
+                  return (
+                    <motion.div
+                      key={item.path}
+                      initial={{ opacity: 0, x: -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.06 * i, duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                      whileHover={{ x: 4 }}
+                    >
+                      <NavLink
+                        label={t(item.labelKey)}
+                        leftSection={<item.icon size={18} />}
+                        rightSection={
+                          item.badge ? (
+                            <Badge color="red" size="xs" variant="filled" circle>
+                              {item.badge}
+                            </Badge>
+                          ) : undefined
+                        }
+                        active={active}
+                        onClick={() => navigate(item.path)}
+                        style={{ borderRadius: 'var(--mantine-radius-md)' }}
+                        variant="subtle"
+                        color="teal"
+                      />
+                    </motion.div>
+                  );
+                })}
+              </Stack>
+            </Box>
+
+            <Box style={{ flex: 1, minWidth: 0 }}>
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <Outlet />
+              </motion.div>
+            </Box>
+          </Group>
+        </Container>
+        <AdBanner position="bottom" />
+        <Footer />
       </AppShell.Main>
     </AppShell>
   );

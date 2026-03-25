@@ -15,6 +15,8 @@ import {
   Box,
   Paper,
   Progress,
+  SegmentedControl,
+  TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import {
@@ -26,11 +28,19 @@ import {
   IconBabyCarriage,
   IconCash,
   IconCreditCard,
+  IconClock,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useBookings } from '../../contexts/BookingsContext';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Vehicle } from '../../data/vehicles';
+import type { RentalMode } from '../../data/bookings';
+import {
+  billableHoursOnDate,
+  hourlyRateFromDaily,
+  prorateDailyAddonEuro,
+} from '../../utils/rentalPricing';
 
 interface Props {
   opened: boolean;
@@ -73,7 +83,12 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
   const [bookingRef, setBookingRef] = useState('');
   const [stepDirection, setStepDirection] = useState<'forward' | 'back'>('forward');
 
+  const [rentalMode, setRentalMode] = useState<RentalMode>('day');
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([null, null]);
+  const [hourDate, setHourDate] = useState<string | null>(null);
+  const [hourStart, setHourStart] = useState('09:00');
+  const [hourEnd, setHourEnd] = useState('17:00');
+
   const [pickupLocation, setPickupLocation] = useState<string | null>(null);
   const [sameLocation, setSameLocation] = useState(true);
   const [returnLocation, setReturnLocation] = useState<string | null>(null);
@@ -101,13 +116,56 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
     return 0;
   }, [dateRange]);
 
-  const baseTotal = vehicle.price * days;
-  const insuranceCost = insurance ? 15 * days : 0;
-  const gpsCost = gps ? 10 * days : 0;
-  const childSeatCost = childSeat ? 5 * days : 0;
-  const total = baseTotal + insuranceCost + gpsCost + childSeatCost;
+  const hours = useMemo(() => {
+    if (!hourDate || !hourStart || !hourEnd) return 0;
+    return billableHoursOnDate(hourDate, hourStart, hourEnd);
+  }, [hourDate, hourStart, hourEnd]);
 
-  const canContinue = dateRange[0] && dateRange[1] && pickupLocation && (sameLocation || returnLocation);
+  const hourlyRate = useMemo(() => hourlyRateFromDaily(vehicle.price), [vehicle.price]);
+
+  const { baseTotal, insuranceCost, gpsCost, childSeatCost, total } = useMemo(() => {
+    if (rentalMode === 'day') {
+      const base = vehicle.price * days;
+      const ins = insurance ? 15 * days : 0;
+      const g = gps ? 10 * days : 0;
+      const c = childSeat ? 5 * days : 0;
+      return {
+        baseTotal: base,
+        insuranceCost: ins,
+        gpsCost: g,
+        childSeatCost: c,
+        total: base + ins + g + c,
+      };
+    }
+    const h = hours;
+    const base = hourlyRate * h;
+    const ins = insurance ? prorateDailyAddonEuro(15, h) : 0;
+    const g = gps ? prorateDailyAddonEuro(10, h) : 0;
+    const c = childSeat ? prorateDailyAddonEuro(5, h) : 0;
+    return {
+      baseTotal: base,
+      insuranceCost: ins,
+      gpsCost: g,
+      childSeatCost: c,
+      total: base + ins + g + c,
+    };
+  }, [
+    rentalMode,
+    vehicle.price,
+    days,
+    hours,
+    hourlyRate,
+    insurance,
+    gps,
+    childSeat,
+  ]);
+
+  const canContinue =
+    pickupLocation &&
+    (sameLocation || returnLocation) &&
+    (rentalMode === 'day'
+      ? !!(dateRange[0] && dateRange[1] && days >= 1)
+      : !!(hourDate && hours >= 1));
 
   const handleConfirm = () => {
     const ref = `AZR-2026-${String(Math.floor(Math.random() * 99999)).padStart(5, '0')}`;
@@ -118,19 +176,40 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
     if (gps) addons.push('gps');
     if (childSeat) addons.push('childSeat');
 
-    addBooking({
-      id: `b-${Date.now()}`,
-      ref,
-      userId: user?.id || 'guest',
-      vehicleId: vehicle.id,
-      vehicleName: vehicle.name,
-      paymentMethod: paymentMethod as 'cash' | 'card',
-      startDate: dateRange[0]!,
-      endDate: dateRange[1]!,
-      total,
-      status: 'pending',
-      addons,
-    });
+    if (rentalMode === 'day') {
+      addBooking({
+        id: `b-${Date.now()}`,
+        ref,
+        userId: user?.id || 'guest',
+        vehicleId: vehicle.id,
+        vehicleName: vehicle.name,
+        paymentMethod: paymentMethod as 'cash' | 'card',
+        startDate: dateRange[0]!,
+        endDate: dateRange[1]!,
+        total,
+        status: 'pending',
+        addons,
+        rentalMode: 'day',
+      });
+    } else {
+      addBooking({
+        id: `b-${Date.now()}`,
+        ref,
+        userId: user?.id || 'guest',
+        vehicleId: vehicle.id,
+        vehicleName: vehicle.name,
+        paymentMethod: paymentMethod as 'cash' | 'card',
+        startDate: hourDate!,
+        endDate: hourDate!,
+        total,
+        status: 'pending',
+        addons,
+        rentalMode: 'hour',
+        billableHours: hours,
+        hourStartTime: hourStart,
+        hourEndTime: hourEnd,
+      });
+    }
 
     setSuccess(true);
   };
@@ -139,7 +218,11 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
     setSuccess(false);
     setStep(0);
     setStepDirection('forward');
+    setRentalMode('day');
     setDateRange([null, null]);
+    setHourDate(null);
+    setHourStart('09:00');
+    setHourEnd('17:00');
     setPickupLocation(null);
     setSameLocation(true);
     setReturnLocation(null);
@@ -165,6 +248,11 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
 
   const stepAnimClass = stepDirection === 'forward' ? 'animate-step-slide-in' : 'animate-step-slide-back';
 
+  const addonDayLabel = `€15/${t('vehicle.perDay')}`;
+  const addonGpsLabel = `€10/${t('vehicle.perDay')}`;
+  const addonChildLabel = `€5/${t('vehicle.perDay')}`;
+  const addonHourHint = t('rental.addonProratedHours');
+
   return (
     <Modal
       opened={opened}
@@ -180,7 +268,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
       centered
       radius="lg"
     >
-      {/* Progress bar at top */}
       {!success && (
         <Progress
           value={step === 0 ? 50 : 100}
@@ -216,15 +303,90 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
           <Stepper.Step label={t('rental.step1')} icon={<IconCalendar size={18} />}>
             <Box key={`step-0-${stepDirection}`} className={stepAnimClass}>
               <Stack gap="md" mt="md">
-                <DatePickerInput
-                  type="range"
-                  label={t('rental.dateRange')}
-                  value={dateRange}
-                  onChange={setDateRange}
-                  minDate={new Date().toISOString().split('T')[0]}
-                  required
-                  radius="md"
-                />
+                <Text size="sm" fw={600}>{t('rental.rentalMode')}</Text>
+                <motion.div
+                  layout
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                >
+                  <SegmentedControl
+                    fullWidth
+                    radius="xl"
+                    size="md"
+                    color="teal"
+                    value={rentalMode}
+                    onChange={(v) => setRentalMode(v as RentalMode)}
+                    data={[
+                      { label: t('rental.rentByDays'), value: 'day' },
+                      { label: t('rental.rentByHours'), value: 'hour' },
+                    ]}
+                  />
+                </motion.div>
+
+                <AnimatePresence mode="wait">
+                  {rentalMode === 'day' ? (
+                    <motion.div
+                      key="day-fields"
+                      initial={{ opacity: 0, x: -16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 16 }}
+                      transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <DatePickerInput
+                        type="range"
+                        label={t('rental.dateRange')}
+                        value={dateRange}
+                        onChange={setDateRange}
+                        minDate={new Date().toISOString().split('T')[0]}
+                        required
+                        radius="md"
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="hour-fields"
+                      initial={{ opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -16 }}
+                      transition={{ duration: 0.28, ease: [0.25, 0.1, 0.25, 1] }}
+                    >
+                      <Stack gap="sm">
+                        <DatePickerInput
+                          type="default"
+                          label={t('rental.singleDay')}
+                          value={hourDate}
+                          onChange={setHourDate}
+                          minDate={new Date().toISOString().split('T')[0]}
+                          required
+                          radius="md"
+                        />
+                        <Group grow align="flex-start">
+                          <TextInput
+                            type="time"
+                            label={t('rental.pickupTime')}
+                            value={hourStart}
+                            onChange={(e) => setHourStart(e.currentTarget.value)}
+                            leftSection={<IconClock size={16} />}
+                            radius="md"
+                          />
+                          <TextInput
+                            type="time"
+                            label={t('rental.returnTime')}
+                            value={hourEnd}
+                            onChange={(e) => setHourEnd(e.currentTarget.value)}
+                            leftSection={<IconClock size={16} />}
+                            radius="md"
+                          />
+                        </Group>
+                        {hours > 0 && (
+                          <Text size="sm" c="teal" fw={600} className="animate-scale-in">
+                            {t('rental.billableHours', { count: hours })}
+                          </Text>
+                        )}
+                      </Stack>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <Select
                   label={t('rental.pickupLocation')}
                   data={locations}
@@ -276,7 +438,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
               <Stack gap="md" mt="md">
                 <Text fw={600}>{t('rental.addons')}</Text>
 
-                {/* Add-on cards */}
                 <Paper
                   className={`glass-card ${insurance ? 'animate-card-glow' : ''}`}
                   p="md"
@@ -296,7 +457,9 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                       </ThemeIcon>
                       <div>
                         <Text size="sm" fw={600}>{t('rental.fullInsurance')}</Text>
-                        <Text size="xs" c="dimmed">€15/{t('vehicle.perDay')}</Text>
+                        <Text size="xs" c="dimmed">
+                          {rentalMode === 'day' ? addonDayLabel : addonHourHint}
+                        </Text>
                       </div>
                     </Group>
                     <Switch checked={insurance} onChange={() => {}} color="teal" />
@@ -322,7 +485,9 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                       </ThemeIcon>
                       <div>
                         <Text size="sm" fw={600}>{t('rental.gps')}</Text>
-                        <Text size="xs" c="dimmed">€10/{t('vehicle.perDay')}</Text>
+                        <Text size="xs" c="dimmed">
+                          {rentalMode === 'day' ? addonGpsLabel : addonHourHint}
+                        </Text>
                       </div>
                     </Group>
                     <Switch checked={gps} onChange={() => {}} color="teal" />
@@ -348,7 +513,9 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                       </ThemeIcon>
                       <div>
                         <Text size="sm" fw={600}>{t('rental.childSeat')}</Text>
-                        <Text size="xs" c="dimmed">€5/{t('vehicle.perDay')}</Text>
+                        <Text size="xs" c="dimmed">
+                          {rentalMode === 'day' ? addonChildLabel : addonHourHint}
+                        </Text>
                       </div>
                     </Group>
                     <Switch checked={childSeat} onChange={() => {}} color="teal" />
@@ -383,7 +550,7 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                       onClick={() => setPaymentMethod('card')}
                     >
                       <Group gap="sm">
-                        <IconCreditCard size={18} color="var(--mantine-color-purple-6)" />
+                        <IconCreditCard size={18} color="var(--mantine-color-teal-6)" />
                         <Radio value="card" label={t('rental.cardPickup')} />
                       </Group>
                     </Paper>
@@ -392,7 +559,6 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
 
                 <Divider />
 
-                {/* Summary */}
                 <Paper className="glass-card" p="md" radius="md">
                   <Text fw={600} mb="sm">{t('rental.summary')}</Text>
                   <Group gap="sm" mb="xs">
@@ -401,33 +567,61 @@ export function RentalBookingModal({ opened, onClose, vehicle }: Props) {
                   </Group>
                   <Stack gap="xs">
                     <Group justify="space-between">
+                      <Text size="sm" c="dimmed">{t('account.rentalType')}</Text>
+                      <Text size="sm" fw={600}>
+                        {rentalMode === 'day' ? t('account.typeDay') : t('account.typeHour')}
+                      </Text>
+                    </Group>
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">{t('rental.dates')}</Text>
-                      <Text size="sm">{formatDate(dateRange[0])} — {formatDate(dateRange[1])}</Text>
+                      <Text size="sm">
+                        {rentalMode === 'day'
+                          ? `${formatDate(dateRange[0])} — ${formatDate(dateRange[1])}`
+                          : `${formatDate(hourDate)} · ${hourStart} — ${hourEnd}`}
+                      </Text>
                     </Group>
                     <Group justify="space-between">
                       <Text size="sm" c="dimmed">{t('rental.duration')}</Text>
-                      <Text size="sm">{days} {t('rental.days')}</Text>
+                      <Text size="sm">
+                        {rentalMode === 'day'
+                          ? `${days} ${t('rental.days')}`
+                          : t('rental.billableHours', { count: hours })}
+                      </Text>
                     </Group>
                     <Group justify="space-between">
                       <Text size="sm" c="dimmed">{t('rental.basePrice')}</Text>
-                      <Text size="sm">€{vehicle.price}/{t('vehicle.perDay')} × {days} = €{baseTotal}</Text>
+                      <Text size="sm">
+                        {rentalMode === 'day'
+                          ? `€${vehicle.price}/${t('vehicle.perDay')} × ${days} = €${baseTotal}`
+                          : `€${hourlyRate}/${t('vehicle.perHour')} × ${hours} = €${baseTotal}`}
+                      </Text>
                     </Group>
                     {insurance && (
                       <Group justify="space-between" className="animate-scale-in">
                         <Text size="sm" c="dimmed">{t('rental.fullInsurance')}</Text>
-                        <Text size="sm">€15 × {days} = €{insuranceCost}</Text>
+                        <Text size="sm">
+                          {rentalMode === 'day'
+                            ? `€15 × ${days} = €${insuranceCost}`
+                            : `€${insuranceCost}`}
+                        </Text>
                       </Group>
                     )}
                     {gps && (
                       <Group justify="space-between" className="animate-scale-in">
                         <Text size="sm" c="dimmed">{t('rental.gps')}</Text>
-                        <Text size="sm">€10 × {days} = €{gpsCost}</Text>
+                        <Text size="sm">
+                          {rentalMode === 'day' ? `€10 × ${days} = €${gpsCost}` : `€${gpsCost}`}
+                        </Text>
                       </Group>
                     )}
                     {childSeat && (
                       <Group justify="space-between" className="animate-scale-in">
                         <Text size="sm" c="dimmed">{t('rental.childSeat')}</Text>
-                        <Text size="sm">€5 × {days} = €{childSeatCost}</Text>
+                        <Text size="sm">
+                          {rentalMode === 'day'
+                            ? `€5 × ${days} = €${childSeatCost}`
+                            : `€${childSeatCost}`}
+                        </Text>
                       </Group>
                     )}
                     <Divider />

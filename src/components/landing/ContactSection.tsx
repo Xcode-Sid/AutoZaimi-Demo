@@ -23,10 +23,12 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
+import { motion } from 'framer-motion';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '../common/AnimatedSection';
 
 const contactInfo = [
   { icon: IconMapPin, titleKey: 'contact.officeTitle', valueKey: 'contact.officeAddress', color: 'teal' },
-  { icon: IconPhone, titleKey: 'contact.phoneTitle', valueKey: 'contact.phoneValue', color: 'purple' },
+  { icon: IconPhone, titleKey: 'contact.phoneTitle', valueKey: 'contact.phoneValue', color: 'teal' },
   { icon: IconMail, titleKey: 'contact.emailTitle', valueKey: 'contact.emailValue', color: 'blue' },
   { icon: IconClock, titleKey: 'contact.hoursTitle', valueKey: 'contact.hoursValue', color: 'orange' },
 ];
@@ -70,131 +72,147 @@ export function ContactSection() {
         }}
       />
       <Container size="lg" style={{ position: 'relative' }}>
-        <Stack align="center" gap="xs" mb={50} className="animate-slide-up">
-          <Title order={2} ta="center" fw={800} style={!isDark ? { color: '#1a1b1e' } : undefined}>
-            {t('contact.title')}
-          </Title>
-          <Text
-            ta="center"
-            maw={500}
-            size="lg"
-            c={isDark ? 'dimmed' : undefined}
-            style={!isDark ? { color: '#868e96' } : undefined}
-          >
-            {t('contact.subtitle')}
-          </Text>
-        </Stack>
+        <AnimatedSection scale>
+          <Stack align="center" gap="xs" mb={50}>
+            <Title order={2} ta="center" fw={800} style={!isDark ? { color: '#1a1b1e' } : undefined}>
+              {t('contact.title')}
+            </Title>
+            <Text
+              ta="center"
+              maw={500}
+              size="lg"
+              c={isDark ? 'dimmed' : undefined}
+              style={!isDark ? { color: '#868e96' } : undefined}
+            >
+              {t('contact.subtitle')}
+            </Text>
+          </Stack>
+        </AnimatedSection>
 
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
           {/* Contact form */}
-          <Paper
-            className="glass-card animate-stagger-up"
-            p="xl"
-            radius="lg"
-            style={{
-              '--stagger-delay': '0.1s',
-              ...(!isDark && {
-                background: '#ffffff',
-                border: '1px solid #e9ecef',
-                boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-              }),
-            } as React.CSSProperties}
-          >
-            <Stack gap="md">
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <TextInput
-                  label={t('contact.nameLabel')}
-                  placeholder={t('contact.namePlaceholder')}
-                  value={name}
-                  onChange={(e) => setName(e.currentTarget.value)}
+          <AnimatedSection direction="left" delay={0.1}>
+            <Paper
+              className="glass-card"
+              p="xl"
+              radius="lg"
+              style={{
+                ...(!isDark && {
+                  background: '#ffffff',
+                  border: '1px solid #e9ecef',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                }),
+              }}
+            >
+              <Stack gap="md">
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                  <TextInput
+                    label={t('contact.nameLabel')}
+                    placeholder={t('contact.namePlaceholder')}
+                    value={name}
+                    onChange={(e) => setName(e.currentTarget.value)}
+                    required
+                    radius="md"
+                  />
+                  <TextInput
+                    label={t('contact.emailLabel')}
+                    placeholder={t('contact.emailPlaceholder')}
+                    value={email}
+                    onChange={(e) => setEmail(e.currentTarget.value)}
+                    required
+                    radius="md"
+                  />
+                </SimpleGrid>
+                <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+                  <TextInput
+                    label={t('contact.phoneLabel')}
+                    placeholder={t('contact.phonePlaceholder')}
+                    value={phone}
+                    onChange={(e) => setPhone(e.currentTarget.value)}
+                    radius="md"
+                  />
+                  <TextInput
+                    label={t('contact.subjectLabel')}
+                    placeholder={t('contact.subjectPlaceholder')}
+                    value={subject}
+                    onChange={(e) => setSubject(e.currentTarget.value)}
+                    radius="md"
+                  />
+                </SimpleGrid>
+                <Textarea
+                  label={t('contact.messageLabel')}
+                  placeholder={t('contact.messagePlaceholder')}
+                  value={message}
+                  onChange={(e) => setMessage(e.currentTarget.value)}
                   required
+                  minRows={5}
                   radius="md"
                 />
-                <TextInput
-                  label={t('contact.emailLabel')}
-                  placeholder={t('contact.emailPlaceholder')}
-                  value={email}
-                  onChange={(e) => setEmail(e.currentTarget.value)}
-                  required
-                  radius="md"
-                />
-              </SimpleGrid>
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                <TextInput
-                  label={t('contact.phoneLabel')}
-                  placeholder={t('contact.phonePlaceholder')}
-                  value={phone}
-                  onChange={(e) => setPhone(e.currentTarget.value)}
-                  radius="md"
-                />
-                <TextInput
-                  label={t('contact.subjectLabel')}
-                  placeholder={t('contact.subjectPlaceholder')}
-                  value={subject}
-                  onChange={(e) => setSubject(e.currentTarget.value)}
-                  radius="md"
-                />
-              </SimpleGrid>
-              <Textarea
-                label={t('contact.messageLabel')}
-                placeholder={t('contact.messagePlaceholder')}
-                value={message}
-                onChange={(e) => setMessage(e.currentTarget.value)}
-                required
-                minRows={5}
-                radius="md"
-              />
-              <Button
-                variant="filled"
-                color="teal"
-                size="md"
-                leftSection={<IconSend size={18} />}
-                onClick={handleSubmit}
-                disabled={!name || !email || !message}
-                radius="md"
-              >
-                {t('contact.send')}
-              </Button>
-            </Stack>
-          </Paper>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+                  <Button
+                    variant="filled"
+                    color="teal"
+                    size="md"
+                    fullWidth
+                    leftSection={<IconSend size={18} />}
+                    onClick={handleSubmit}
+                    disabled={!name || !email || !message}
+                    radius="md"
+                    className="ripple-btn"
+                  >
+                    {t('contact.send')}
+                  </Button>
+                </motion.div>
+              </Stack>
+            </Paper>
+          </AnimatedSection>
 
           {/* Contact info cards */}
-          <Stack gap="md">
-            {contactInfo.map((item, i) => (
-              <Paper
-                key={item.titleKey}
-                className="glass-card glass-card-hover animate-stagger-up"
-                p="lg"
-                radius="lg"
-                style={{
-                  '--stagger-delay': `${(i + 1) * 0.12}s`,
-                  ...(!isDark && {
-                    background: '#ffffff',
-                    border: '1px solid #e9ecef',
-                    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-                  }),
-                } as React.CSSProperties}
-              >
-                <Group gap="md" align="flex-start">
-                  <ThemeIcon size={48} radius="xl" variant="light" color={item.color}>
-                    <item.icon size={24} />
-                  </ThemeIcon>
-                  <Stack gap={2} style={{ flex: 1 }}>
-                    <Text fw={700} size="sm" style={!isDark ? { color: '#1a1b1e' } : undefined}>
-                      {t(item.titleKey)}
-                    </Text>
-                    <Text
-                      size="sm"
-                      c={isDark ? 'dimmed' : undefined}
-                      style={!isDark ? { color: '#868e96' } : undefined}
+          <StaggerContainer stagger={0.12} delay={0.2}>
+            <Stack gap="md">
+              {contactInfo.map((item) => (
+                <StaggerItem key={item.titleKey} direction="right">
+                  <motion.div whileHover={{ x: 6 }} transition={{ type: 'spring', stiffness: 300 }}>
+                    <Paper
+                      className="glass-card card-shimmer"
+                      p="lg"
+                      radius="lg"
+                      style={{
+                        ...(!isDark && {
+                          background: '#ffffff',
+                          border: '1px solid #e9ecef',
+                          boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+                        }),
+                      }}
                     >
-                      {t(item.valueKey)}
-                    </Text>
-                  </Stack>
-                </Group>
-              </Paper>
-            ))}
-          </Stack>
+                      <Group gap="md" align="flex-start">
+                        <motion.div
+                          whileHover={{ rotate: 15 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          <ThemeIcon size={48} radius="xl" variant="light" color={item.color}>
+                            <item.icon size={24} />
+                          </ThemeIcon>
+                        </motion.div>
+                        <Stack gap={2} style={{ flex: 1 }}>
+                          <Text fw={700} size="sm" style={!isDark ? { color: '#1a1b1e' } : undefined}>
+                            {t(item.titleKey)}
+                          </Text>
+                          <Text
+                            size="sm"
+                            c={isDark ? 'dimmed' : undefined}
+                            style={!isDark ? { color: '#868e96' } : undefined}
+                          >
+                            {t(item.valueKey)}
+                          </Text>
+                        </Stack>
+                      </Group>
+                    </Paper>
+                  </motion.div>
+                </StaggerItem>
+              ))}
+            </Stack>
+          </StaggerContainer>
         </SimpleGrid>
       </Container>
     </Box>

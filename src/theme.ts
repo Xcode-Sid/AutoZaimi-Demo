@@ -1,18 +1,5 @@
 import { createTheme, type MantineColorsTuple } from '@mantine/core';
 
-const purple: MantineColorsTuple = [
-  '#f3edff',
-  '#e2d5f8',
-  '#c6aaef',
-  '#ab80e6',
-  '#9462d9',
-  '#7C5CBF',
-  '#6E4FB0',
-  '#5F42A0',
-  '#513790',
-  '#3F2A78',
-];
-
 const teal: MantineColorsTuple = [
   '#e6fcf5',
   '#c3fae8',
@@ -26,17 +13,17 @@ const teal: MantineColorsTuple = [
   '#099268',
 ];
 
-const magenta: MantineColorsTuple = [
-  '#fef0f5',
-  '#fcdce8',
-  '#f9c0d5',
-  '#f5a3c2',
-  '#f187af',
-  '#E879A8',
-  '#d4628f',
-  '#bf4c77',
-  '#a93960',
-  '#8c2a4c',
+const green: MantineColorsTuple = [
+  '#ebfbee',
+  '#d3f9d8',
+  '#b2f2bb',
+  '#8ce99a',
+  '#69db7c',
+  '#51cf66',
+  '#40c057',
+  '#37b24d',
+  '#2f9e44',
+  '#2b8a3e',
 ];
 
 const gold: MantineColorsTuple = [
@@ -53,11 +40,10 @@ const gold: MantineColorsTuple = [
 ];
 
 export const theme = createTheme({
-  primaryColor: 'purple',
+  primaryColor: 'teal',
   colors: {
-    purple,
     teal,
-    magenta,
+    green,
     gold,
     dark: [
       '#F0F6FC',
@@ -77,7 +63,7 @@ export const theme = createTheme({
   defaultRadius: 'md',
   other: {
     accentCta: '#2DD4A8',
-    highlight: '#E879A8',
+    highlight: '#2DD4A8',
     gold: '#F5B544',
     success: '#34D399',
     warning: '#FBBF24',

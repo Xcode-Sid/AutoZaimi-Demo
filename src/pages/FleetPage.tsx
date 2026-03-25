@@ -19,6 +19,7 @@ import {
   ThemeIcon,
   Divider,
   UnstyledButton,
+  SegmentedControl,
 } from '@mantine/core';
 import {
   IconLayoutGrid,
@@ -29,13 +30,16 @@ import {
   IconCar,
   IconBolt,
   IconPigMoney,
-  IconX,
+  IconRotateClockwise,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '@mantine/hooks';
+import { motion } from 'framer-motion';
 import { vehicles } from '../data/vehicles';
-import { VehicleCard } from '../components/common/VehicleCard';
+import { VehicleCard, type FleetPriceEmphasis } from '../components/common/VehicleCard';
+import { hourlyRateFromDaily } from '../utils/rentalPricing';
 import { EmptyState } from '../components/common/EmptyState';
+import { AnimatedSection, StaggerContainer, StaggerItem } from '../components/common/AnimatedSection';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -53,42 +57,50 @@ const categoryColors: Record<string, string> = {
   Ekonomike: 'gray',
 };
 
+const INITIAL_PRICE_RANGE: [number, number] = [0, 200];
+
 export default function FleetPage() {
   const { t } = useTranslation();
   const isDesktop = useMediaQuery('(min-width: 75em)');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  /** Bumps when user hits Reset — remounts slider & chips so Mantine UI matches state */
+  const [filterFormKey, setFilterFormKey] = useState(0);
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('recommended');
   const [gridView, setGridView] = useState(true);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 200]);
+  const [priceRange, setPriceRange] = useState<[number, number]>(() => [...INITIAL_PRICE_RANGE]);
   const [fuelTypes, setFuelTypes] = useState<string[]>([]);
   const [transmission, setTransmission] = useState<string[]>([]);
-  const [seatsFilter, setSeatsFilter] = useState<string | null>(null);
-  const [cities, setCities] = useState<string[]>([]);
+  const [seatsFilter, setSeatsFilter] = useState('');
+  const [rentalPriceFilter, setRentalPriceFilter] = useState<FleetPriceEmphasis>('all');
   const [page, setPage] = useState(1);
 
   const categories = ['Luksoze', 'SUV', 'Elektrike', 'Ekonomike'];
-  const allCities = [...new Set(vehicles.map((v) => v.city))];
 
   const activeFilterCount = [
     category,
+    rentalPriceFilter !== 'all',
     fuelTypes.length > 0,
     transmission.length > 0,
-    seatsFilter,
-    cities.length > 0,
+    seatsFilter.length > 0,
     priceRange[0] > 0 || priceRange[1] < 200,
   ].filter(Boolean).length;
 
-  const clearFilters = () => {
+  const resetFleetToInitial = () => {
+    setSearch('');
     setCategory(null);
-    setPriceRange([0, 200]);
+    setSortBy('recommended');
+    setGridView(true);
+    setPriceRange([...INITIAL_PRICE_RANGE]);
     setFuelTypes([]);
     setTransmission([]);
-    setSeatsFilter(null);
-    setCities([]);
+    setSeatsFilter('');
+    setRentalPriceFilter('all');
     setPage(1);
+    setDrawerOpen(false);
+    setFilterFormKey((k) => k + 1);
   };
 
   const filtered = useMemo(() => {
@@ -114,12 +126,18 @@ export default function FleetPage() {
         result = result.filter((v) => v.specs.seats === seats);
       }
     }
-    if (cities.length > 0) {
-      result = result.filter((v) => cities.includes(v.city));
-    }
     result = result.filter((v) => v.price >= priceRange[0] && v.price <= priceRange[1]);
 
     switch (sortBy) {
+      case 'recommended':
+        if (rentalPriceFilter === 'day') {
+          result.sort((a, b) => a.price - b.price);
+        } else if (rentalPriceFilter === 'hour') {
+          result.sort(
+            (a, b) => hourlyRateFromDaily(a.price) - hourlyRateFromDaily(b.price),
+          );
+        }
+        break;
       case 'priceAsc':
         result.sort((a, b) => a.price - b.price);
         break;
@@ -132,57 +150,133 @@ export default function FleetPage() {
     }
 
     return result;
-  }, [search, category, sortBy, priceRange, fuelTypes, transmission, seatsFilter, cities]);
+  }, [search, category, sortBy, rentalPriceFilter, priceRange, fuelTypes, transmission, seatsFilter]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const filterPanel = (
-    <Stack gap="xl" p="md">
-      <div>
-        <Text fw={600} mb="sm">{t('admin.category')}</Text>
-        <SimpleGrid cols={2} spacing="sm">
-          {categories.map((cat) => {
+    <Stack gap="md" p="lg">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <Group justify="space-between" mb={4}>
+          <Group gap={8}>
+            <Box style={{ width: 3, height: 18, borderRadius: 2, background: 'var(--az-teal)' }} />
+            <Text fw={700} size="md" tt="uppercase" style={{ letterSpacing: '0.05em' }}>
+              {t('fleet.filters')}
+            </Text>
+          </Group>
+          {activeFilterCount > 0 && (
+            <Badge size="sm" variant="filled" color="teal" circle>{activeFilterCount}</Badge>
+          )}
+        </Group>
+      </motion.div>
+
+      {/* Category */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('admin.category')}</Text>
+        </div>
+        <SimpleGrid cols={2} spacing="xs">
+          {categories.map((cat, i) => {
             const Icon = categoryIcons[cat];
-            const isActive = category === cat;
+            const catActive = category === cat;
             return (
-              <UnstyledButton
+              <motion.div
                 key={cat}
-                onClick={() => { setCategory(isActive ? null : cat); setPage(1); }}
-                className={`glass-card ${isActive ? '' : 'glass-card-hover'}`}
-                p="md"
-                style={{
-                  borderRadius: 'var(--mantine-radius-lg)',
-                  textAlign: 'center',
-                  border: isActive ? '2px solid var(--mantine-color-teal-6)' : undefined,
-                  transition: 'all 0.2s ease',
-                }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 + i * 0.05 }}
+                whileHover={{ scale: 1.04, y: -2 }}
+                whileTap={{ scale: 0.96 }}
               >
-                <Stack align="center" gap={6}>
-                  <ThemeIcon
-                    size={40}
-                    radius="xl"
-                    variant={isActive ? 'filled' : 'light'}
-                    color={isActive ? 'teal' : categoryColors[cat]}
-                  >
-                    <Icon size={20} />
-                  </ThemeIcon>
-                  <Text size="sm" fw={isActive ? 700 : 500}>{t(`fleet.${cat.toLowerCase() === 'luksoze' ? 'luxury' : cat.toLowerCase() === 'elektrike' ? 'electric' : cat.toLowerCase() === 'ekonomike' ? 'economy' : 'suv'}`)}</Text>
-                </Stack>
-              </UnstyledButton>
+                <UnstyledButton
+                  onClick={() => { setCategory(catActive ? null : cat); setPage(1); }}
+                  className={`filter-category-card ${catActive ? 'active' : ''}`}
+                  p="sm"
+                  style={{ width: '100%', textAlign: 'center' }}
+                >
+                  <Stack align="center" gap={6}>
+                    <motion.div
+                      animate={catActive ? { rotate: [0, -8, 8, 0], scale: [1, 1.15, 1] } : {}}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <ThemeIcon
+                        size={38}
+                        radius="xl"
+                        variant={catActive ? 'filled' : 'light'}
+                        color={catActive ? 'teal' : categoryColors[cat]}
+                      >
+                        <Icon size={18} />
+                      </ThemeIcon>
+                    </motion.div>
+                    <Text size="xs" fw={catActive ? 700 : 500}>
+                      {t(`fleet.${cat.toLowerCase() === 'luksoze' ? 'luxury' : cat.toLowerCase() === 'elektrike' ? 'electric' : cat.toLowerCase() === 'ekonomike' ? 'economy' : 'suv'}`)}
+                    </Text>
+                  </Stack>
+                </UnstyledButton>
+              </motion.div>
             );
           })}
         </SimpleGrid>
-      </div>
+      </motion.div>
 
-      <Divider />
+      {/* Day vs hour pricing (fleet rental filter) */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('fleet.rentalLength')}</Text>
+        </div>
+        <Text size="xs" c="dimmed" mb="xs">
+          {t('fleet.rentalLengthDesc')}
+        </Text>
+        <SegmentedControl
+          fullWidth
+          size="sm"
+          radius="md"
+          color="teal"
+          value={rentalPriceFilter}
+          onChange={(v) => {
+            setRentalPriceFilter(v as FleetPriceEmphasis);
+            setPage(1);
+          }}
+          data={[
+            { value: 'all', label: t('fleet.all') },
+            { value: 'day', label: t('rental.rentByDays') },
+            { value: 'hour', label: t('rental.rentByHours') },
+          ]}
+        />
+      </motion.div>
 
-      <div>
-        <Group justify="space-between" mb="xs">
-          <Text fw={600}>{t('fleet.priceRange')}</Text>
-          <Text size="sm" c="teal">€{priceRange[0]} — €{priceRange[1]}</Text>
-        </Group>
+      {/* Price Range */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('fleet.priceRange')}</Text>
+          <Text size="xs" c="teal" fw={600} ml="auto">€{priceRange[0]} — €{priceRange[1]}</Text>
+        </div>
         <RangeSlider
+          key={`fleet-price-${filterFormKey}`}
           value={priceRange}
           onChange={(val) => { setPriceRange(val); setPage(1); }}
           min={0}
@@ -195,40 +289,75 @@ export default function FleetPage() {
             { value: 200, label: '€200' },
           ]}
         />
-      </div>
+      </motion.div>
 
-      <Divider />
-
-      <div>
-        <Text fw={600} mb="sm">{t('fleet.fuelType')}</Text>
-        <Chip.Group multiple value={fuelTypes} onChange={(v) => { setFuelTypes(v); setPage(1); }}>
+      {/* Fuel Type */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.15 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('fleet.fuelType')}</Text>
+        </div>
+        <Chip.Group
+          key={`fleet-fuel-${filterFormKey}`}
+          multiple
+          value={fuelTypes}
+          onChange={(v) => { setFuelTypes(v); setPage(1); }}
+        >
           <Group gap="xs">
-            <Chip value="Benzinë" variant="outline" color="teal">Benzinë</Chip>
-            <Chip value="Diesel" variant="outline" color="teal">Diesel</Chip>
-            <Chip value="Elektrik" variant="outline" color="teal">Elektrik</Chip>
-            <Chip value="Hibrid" variant="outline" color="teal">Hibrid</Chip>
+            <Chip value="Benzinë" variant="outline" color="teal">{t('fleet.fuelPetrol')}</Chip>
+            <Chip value="Diesel" variant="outline" color="teal">{t('fleet.fuelDiesel')}</Chip>
+            <Chip value="Elektrik" variant="outline" color="teal">{t('fleet.fuelElectric')}</Chip>
+            <Chip value="Hibrid" variant="outline" color="teal">{t('fleet.fuelHybrid')}</Chip>
           </Group>
         </Chip.Group>
-      </div>
+      </motion.div>
 
-      <Divider />
-
-      <div>
-        <Text fw={600} mb="sm">{t('fleet.transmission')}</Text>
-        <Chip.Group multiple value={transmission} onChange={(v) => { setTransmission(v); setPage(1); }}>
+      {/* Transmission */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('fleet.transmission')}</Text>
+        </div>
+        <Chip.Group
+          key={`fleet-trans-${filterFormKey}`}
+          multiple
+          value={transmission}
+          onChange={(v) => { setTransmission(v); setPage(1); }}
+        >
           <Group gap="xs">
             <Chip value="Manual" variant="outline" color="teal">{t('fleet.manual')}</Chip>
             <Chip value="Automatik" variant="outline" color="teal">{t('fleet.automatic')}</Chip>
-            <Chip value="CVT" variant="outline" color="teal">CVT</Chip>
+            <Chip value="CVT" variant="outline" color="teal">{t('fleet.cvt')}</Chip>
           </Group>
         </Chip.Group>
-      </div>
+      </motion.div>
 
-      <Divider />
-
-      <div>
-        <Text fw={600} mb="sm">{t('fleet.seatsFilter')}</Text>
-        <Chip.Group value={seatsFilter} onChange={(v) => { setSeatsFilter(v as string); setPage(1); }}>
+      {/* Seats */}
+      <motion.div
+        className="filter-section"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.25 }}
+      >
+        <div className="filter-section-label">
+          <span className="label-dot" />
+          <Text fw={600} size="sm">{t('fleet.seatsFilter')}</Text>
+        </div>
+        <Chip.Group
+          key={`fleet-seats-${filterFormKey}`}
+          value={seatsFilter}
+          onChange={(v) => { setSeatsFilter(typeof v === 'string' ? v : ''); setPage(1); }}
+        >
           <Group gap="xs">
             <Chip value="2" variant="outline" color="teal">2</Chip>
             <Chip value="4" variant="outline" color="teal">4</Chip>
@@ -236,196 +365,217 @@ export default function FleetPage() {
             <Chip value="7" variant="outline" color="teal">7+</Chip>
           </Group>
         </Chip.Group>
-      </div>
+      </motion.div>
 
-      <Divider />
-
-      <div>
-        <Text fw={600} mb="sm">{t('fleet.cityFilter')}</Text>
-        <Chip.Group multiple value={cities} onChange={(v) => { setCities(v); setPage(1); }}>
-          <Group gap="xs">
-            {allCities.map((city) => (
-              <Chip key={city} value={city} variant="outline" color="teal">{city}</Chip>
-            ))}
-          </Group>
-        </Chip.Group>
-      </div>
-
-      <Divider />
-
-      <Group grow>
+      {/* Reset all filters to initial page state */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
         <Button
-          variant="filled"
+          variant="light"
           color="teal"
-          onClick={() => setDrawerOpen(false)}
+          fullWidth
+          radius="lg"
+          leftSection={<IconRotateClockwise size={16} />}
+          onClick={resetFleetToInitial}
+          style={{ fontWeight: 600 }}
         >
-          {t('fleet.applyFilters')}
+          {t('fleet.resetFilters')}
         </Button>
-        <Button variant="subtle" color="gray" onClick={clearFilters}>
-          {t('fleet.clearFilters')}
-        </Button>
-      </Group>
+      </motion.div>
     </Stack>
   );
 
   return (
-    <Container size="xl" py="xl">
-      <Box mb="xl" className="animate-slide-up" style={{ position: 'relative' }}>
-        <Stack gap="xs">
-          <Title order={1} fw={800}>
-            {t('fleet.title')}
-          </Title>
-          <Text c="dimmed">{t('fleet.subtitle')}</Text>
-        </Stack>
-      </Box>
-
-      <Group gap="md" mb="lg" wrap="wrap">
-        <TextInput
-          placeholder={t('fleet.searchCars')}
-          leftSection={<IconSearch size={16} />}
-          value={search}
-          onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
-          style={{ flex: 1, minWidth: 0 }}
-          w={{ base: '100%', sm: 'auto' }}
-          radius="xl"
-        />
-        <Group gap="xs" wrap="wrap">
-          <Select
-            size="sm"
-            w={{ base: '100%', xs: 180 }}
-            value={sortBy}
-            onChange={(v) => v && setSortBy(v)}
-            data={[
-              { value: 'recommended', label: t('fleet.recommended') },
-              { value: 'priceAsc', label: t('fleet.priceAsc') },
-              { value: 'priceDesc', label: t('fleet.priceDesc') },
-              { value: 'newest', label: t('fleet.newest') },
-            ]}
-            radius="xl"
-          />
-          <Group gap="xs">
-            <ActionIcon
-              variant={gridView ? 'filled' : 'subtle'}
-              color="teal"
-              onClick={() => setGridView(true)}
-              radius="xl"
-              size="lg"
-            >
-              <IconLayoutGrid size={18} />
-            </ActionIcon>
-            <ActionIcon
-              variant={!gridView ? 'filled' : 'subtle'}
-              color="teal"
-              onClick={() => setGridView(false)}
-              radius="xl"
-              size="lg"
-            >
-              <IconList size={18} />
-            </ActionIcon>
-          </Group>
-          {!isDesktop && (
-            <Button
-              variant="light"
-              color="teal"
-              leftSection={<IconFilter size={16} />}
-              rightSection={
-                activeFilterCount > 0 ? (
-                  <Badge color="teal" size="xs" variant="filled" circle>
-                    {activeFilterCount}
-                  </Badge>
-                ) : null
-              }
-              onClick={() => setDrawerOpen(true)}
-              radius="xl"
-            >
-              {t('fleet.filters')}
-            </Button>
-          )}
-        </Group>
-      </Group>
-
-      <div style={{ display: 'flex', gap: '1.5rem' }}>
-        {isDesktop && (
-          <Box
-            className="glass-card"
-            style={{
-              width: 300,
-              flexShrink: 0,
-              borderRadius: 'var(--mantine-radius-xl)',
-              position: 'sticky',
-              top: 90,
-              maxHeight: 'calc(100vh - 110px)',
-              overflowY: 'auto',
-              alignSelf: 'flex-start',
-            }}
-          >
-            {filterPanel}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <Container size="xl" py="xl">
+        <AnimatedSection>
+          <Box mb="xl" style={{ position: 'relative' }}>
+            <Stack gap="xs">
+              <Title order={1} fw={800}>
+                {t('fleet.title')}
+              </Title>
+              <Text c="dimmed">{t('fleet.subtitle')}</Text>
+            </Stack>
           </Box>
-        )}
+        </AnimatedSection>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Text size="sm" c="dimmed" mb="md">
-            {filtered.length} {t('fleet.results')}
-            {activeFilterCount > 0 && (
-              <>
-                {' · '}
-                <Text component="span" size="sm" c="teal" fw={500}>
-                  {activeFilterCount} {t('fleet.activeFilters')}
-                </Text>
-                <Text
-                  component="span"
+        {/* Main content wrapper with border */}
+        <AnimatedSection delay={0.1}>
+          <Box
+            className="glass-card card-gradient-border"
+            p="xl"
+            style={{ borderRadius: 'var(--mantine-radius-xl)' }}
+          >
+            {/* Search & controls bar */}
+            <Group gap="md" mb="lg" wrap="wrap">
+              <TextInput
+                key={`fleet-search-${filterFormKey}`}
+                placeholder={t('fleet.searchCars')}
+                leftSection={<IconSearch size={16} />}
+                value={search}
+                onChange={(e) => { setSearch(e.currentTarget.value); setPage(1); }}
+                style={{ flex: 1, minWidth: 0 }}
+                w={{ base: '100%', sm: 'auto' }}
+                radius="xl"
+              />
+              <Group gap="xs" wrap="wrap">
+                <Select
+                  key={`fleet-sort-${filterFormKey}`}
                   size="sm"
-                  c="dimmed"
-                  ml={4}
-                  style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                  onClick={clearFilters}
-                >
-                  <IconX size={12} style={{ verticalAlign: 'middle' }} /> {t('fleet.clearFilters')}
-                </Text>
-              </>
-            )}
-          </Text>
-
-          {paged.length > 0 ? (
-            <>
-              <SimpleGrid
-                cols={gridView ? { base: 1, sm: 2, lg: isDesktop ? 2 : 3 } : { base: 1 }}
-                spacing="lg"
-              >
-                {paged.map((vehicle, i) => (
-                  <VehicleCard key={vehicle.id} vehicle={vehicle} index={i} />
-                ))}
-              </SimpleGrid>
-
-              {totalPages > 1 && (
-                <Group justify="center" mt="xl">
-                  <Pagination
-                    total={totalPages}
-                    value={page}
-                    onChange={setPage}
+                  w={{ base: '100%', xs: 180 }}
+                  value={sortBy}
+                  onChange={(v) => v && setSortBy(v)}
+                  data={[
+                    { value: 'recommended', label: t('fleet.recommended') },
+                    { value: 'priceAsc', label: t('fleet.priceAsc') },
+                    { value: 'priceDesc', label: t('fleet.priceDesc') },
+                    { value: 'newest', label: t('fleet.newest') },
+                  ]}
+                  radius="xl"
+                />
+                <Group gap="xs">
+                  <ActionIcon
+                    variant={gridView ? 'filled' : 'subtle'}
                     color="teal"
-                  />
+                    onClick={() => setGridView(true)}
+                    radius="xl"
+                    size="lg"
+                  >
+                    <IconLayoutGrid size={18} />
+                  </ActionIcon>
+                  <ActionIcon
+                    variant={!gridView ? 'filled' : 'subtle'}
+                    color="teal"
+                    onClick={() => setGridView(false)}
+                    radius="xl"
+                    size="lg"
+                  >
+                    <IconList size={18} />
+                  </ActionIcon>
                 </Group>
-              )}
-            </>
-          ) : (
-            <EmptyState
-              title={t('fleet.noResults')}
-              description={t('fleet.noResultsDesc')}
-            />
-          )}
-        </div>
-      </div>
+                {!isDesktop && (
+                  <Button
+                    variant="light"
+                    color="teal"
+                    leftSection={<IconFilter size={16} />}
+                    rightSection={
+                      activeFilterCount > 0 ? (
+                        <Badge color="teal" size="xs" variant="filled" circle>
+                          {activeFilterCount}
+                        </Badge>
+                      ) : null
+                    }
+                    onClick={() => setDrawerOpen(true)}
+                    radius="xl"
+                  >
+                    {t('fleet.filters')}
+                  </Button>
+                )}
+              </Group>
+            </Group>
 
-      <Drawer
-        opened={drawerOpen && !isDesktop}
-        onClose={() => setDrawerOpen(false)}
-        title={t('fleet.filters')}
-        position="left"
-        size="sm"
-      >
-        {filterPanel}
-      </Drawer>
-    </Container>
+            {/* Filter sidebar + results grid */}
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              {isDesktop && (
+                <AnimatedSection direction="left" delay={0.15}>
+                  <Box
+                    className="filter-panel"
+                    style={{
+                      width: 310,
+                      flexShrink: 0,
+                      position: 'sticky',
+                      top: 90,
+                      maxHeight: 'calc(100vh - 110px)',
+                      overflowY: 'auto',
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    {filterPanel}
+                  </Box>
+                </AnimatedSection>
+              )}
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Text size="sm" c="dimmed" mb="md">
+                  {filtered.length} {t('fleet.results')}
+                  {activeFilterCount > 0 && (
+                    <>
+                      {' · '}
+                      <Text component="span" size="sm" c="teal" fw={500}>
+                        {activeFilterCount} {t('fleet.activeFilters')}
+                      </Text>
+                      <Text
+                        component="span"
+                        size="sm"
+                        c="dimmed"
+                        ml={4}
+                    style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                    onClick={resetFleetToInitial}
+                  >
+                    <IconRotateClockwise size={12} style={{ verticalAlign: 'middle' }} /> {t('fleet.resetFilters')}
+                      </Text>
+                    </>
+                  )}
+                </Text>
+
+                {paged.length > 0 ? (
+                  <>
+                    <StaggerContainer stagger={0.08}>
+                      <SimpleGrid
+                        cols={gridView ? { base: 1, sm: 2, lg: isDesktop ? 2 : 3 } : { base: 1 }}
+                        spacing="lg"
+                      >
+                        {paged.map((vehicle, i) => (
+                          <StaggerItem key={vehicle.id} scale>
+                            <VehicleCard vehicle={vehicle} index={i} priceEmphasis={rentalPriceFilter} />
+                          </StaggerItem>
+                        ))}
+                      </SimpleGrid>
+                    </StaggerContainer>
+
+                    {totalPages > 1 && (
+                      <AnimatedSection delay={0.2}>
+                        <Group justify="center" mt="xl">
+                          <Pagination
+                            total={totalPages}
+                            value={page}
+                            onChange={setPage}
+                            color="teal"
+                          />
+                        </Group>
+                      </AnimatedSection>
+                    )}
+                  </>
+                ) : (
+                  <AnimatedSection>
+                    <EmptyState
+                      title={t('fleet.noResults')}
+                      description={t('fleet.noResultsDesc')}
+                    />
+                  </AnimatedSection>
+                )}
+              </div>
+            </div>
+          </Box>
+        </AnimatedSection>
+
+        <Drawer
+          opened={drawerOpen && !isDesktop}
+          onClose={() => setDrawerOpen(false)}
+          title={t('fleet.filters')}
+          position="left"
+          size="sm"
+        >
+          {filterPanel}
+        </Drawer>
+      </Container>
+    </motion.div>
   );
 }

@@ -5,7 +5,7 @@ interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
   isLoggedIn: boolean;
-  login: (email: string, password: string) => boolean;
+  login: (email: string, password: string) => User | null;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 }
@@ -30,9 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (found) {
       setUser(found);
       localStorage.setItem('az-user', JSON.stringify(found));
-      return true;
+      return found;
     }
-    return false;
+    return null;
   }, []);
 
   const logout = useCallback(() => {

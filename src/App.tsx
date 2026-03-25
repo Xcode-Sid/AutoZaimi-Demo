@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import { PublicLayout } from './layouts/PublicLayout';
 import { AccountLayout } from './layouts/AccountLayout';
 import { AdminLayout } from './layouts/AdminLayout';
-import { ProtectedRoute } from './components/common/ProtectedRoute';
+import { ProtectedRoute, UserAccountRoute } from './components/common/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import FleetPage from './pages/FleetPage';
 import VehicleDetailPage from './pages/VehicleDetailPage';
@@ -26,6 +26,7 @@ import AdminAdsPage from './pages/admin/AdsPage';
 import { LanguageSwitcher } from './components/common/LanguageSwitcher';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { Box } from '@mantine/core';
+import { AdPageShell, AdsVerticalLayout } from './layouts/AdPageShell';
 
 export default function App() {
   return (
@@ -57,7 +58,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route element={<ProtectedRoute />}>
+        <Route element={<UserAccountRoute />}>
           <Route element={<AccountLayout />}>
             <Route path="/account/profile" element={<ProfilePage />} />
             <Route path="/account/saved" element={<SavedCarsPage />} />
@@ -79,7 +80,14 @@ export default function App() {
           </Route>
         </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
+      <Route
+        path="*"
+        element={
+          <AdsVerticalLayout>
+            <NotFoundPage />
+          </AdsVerticalLayout>
+        }
+      />
     </Routes>
     </>
   );

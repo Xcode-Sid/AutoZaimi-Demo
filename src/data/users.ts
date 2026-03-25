@@ -10,6 +10,8 @@ export interface User {
   role: 'admin' | 'user';
   avatar: string;
   savedVehicles: number[];
+  /** Demo: shown in admin customers table */
+  customerStatus?: 'active' | 'inactive';
 }
 
 export const users: User[] = [
@@ -38,5 +40,58 @@ export const users: User[] = [
     role: 'user',
     avatar: 'AH',
     savedVehicles: [1, 3, 8],
+  },
+  {
+    id: 'user-2',
+    firstName: 'Elona',
+    lastName: 'Kushi',
+    email: 'elona@email.com',
+    password: 'demo123',
+    phone: '+355 69 234 5678',
+    address: 'Rruga e Kavajës',
+    city: 'Tiranë',
+    role: 'user',
+    avatar: 'EK',
+    savedVehicles: [2],
+  },
+  {
+    id: 'user-3',
+    firstName: 'Dritan',
+    lastName: 'Leka',
+    email: 'dritan@email.com',
+    password: 'demo123',
+    phone: '+355 69 345 6789',
+    address: 'Laprakë',
+    city: 'Tiranë',
+    role: 'user',
+    avatar: 'DL',
+    savedVehicles: [],
+  },
+  {
+    id: 'user-4',
+    firstName: 'Blerina',
+    lastName: 'Topi',
+    email: 'blerina@email.com',
+    password: 'demo123',
+    phone: '+355 69 456 7890',
+    address: 'Kombinat',
+    city: 'Tiranë',
+    role: 'user',
+    avatar: 'BT',
+    savedVehicles: [4],
+  },
+  {
+    id: 'user-5',
+    firstName: 'Gentian',
+    lastName: 'Muka',
+    email: 'gentian@email.com',
+    password: 'demo123',
+    phone: '+355 69 567 8901',
+    address: 'Fushë Krujë',
+    city: 'Krujë',
+    role: 'user',
+    avatar: 'GM',
+    savedVehicles: [],
+    customerStatus: 'inactive',
   },
 ];

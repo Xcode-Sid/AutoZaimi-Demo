@@ -4,6 +4,7 @@ import { HeroSection } from '../components/landing/HeroSection';
 import { FeaturedVehicles } from '../components/landing/FeaturedVehicles';
 import { HowItWorks } from '../components/landing/HowItWorks';
 import { TestimonialsCarousel } from '../components/landing/TestimonialsCarousel';
+import { AnimatedDivider } from '../components/common/AnimatedDivider';
 
 const partnerLogos = [
   { name: 'Mercedes-Benz', letter: 'MB', color: '#C0C0C0' },
@@ -14,10 +15,6 @@ const partnerLogos = [
   { name: 'Toyota', letter: 'TY', color: '#EB0A1E' },
   { name: 'Range Rover', letter: 'RR', color: '#005A2B' },
 ];
-
-function SectionDivider() {
-  return <div className="section-divider" />;
-}
 
 function PartnersLogos() {
   const { t } = useTranslation();
@@ -70,13 +67,13 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <SectionDivider />
+      <AnimatedDivider my={0} />
       <FeaturedVehicles />
-      <SectionDivider />
+      <AnimatedDivider my={0} />
       <HowItWorks />
-      <SectionDivider />
+      <AnimatedDivider my={0} />
       <PartnersLogos />
-      <SectionDivider />
+      <AnimatedDivider my={0} />
       <TestimonialsCarousel />
     </>
   );
